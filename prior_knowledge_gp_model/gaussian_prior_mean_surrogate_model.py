@@ -29,15 +29,15 @@ class GaussianPriorMeanSurrogateModel(SurrogateModel):
             self.training_values = tf.concat([self.training_values, values], 0)
 
         self.gaussian_process_model.train()
-        self.gaussian_process_model.fit(points, values)
+        self.gaussian_process_model.fit(self.training_points, tf.reshape(self.training_values, [-1]))
         self.gaussian_process_model.eval()
 
     def uncertainty(self, points: tf.Tensor) -> tf.Tensor:
         # TODO check if could be simplified (omit GP call)
-        prediction = self.gaussian_process_model.likelihood(self.gaussian_process_model(points))
+        prediction = self.gaussian_process_model.likelihood(self.gaussian_process_model(torch.as_tensor(points.numpy())))
         # standard deviation as measure for uncertainty..
         return prediction.stddev
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-        prediction = self.gaussian_process_model.likelihood(self.gaussian_process_model(points))
-        return prediction.mean
+        prediction = self.gaussian_process_model.likelihood(self.gaussian_process_model(torch.as_tensor(points.numpy())))
+        return points, prediction.mean

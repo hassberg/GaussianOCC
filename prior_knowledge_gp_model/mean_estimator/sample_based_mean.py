@@ -8,7 +8,7 @@ def max_pairwise_dist(hull_points):
     max_dist = 0.0
     for i in range(len(hull_points)):
         for j in range(i + 1, len(hull_points)):
-            max_dist = np.maximum(max_dist, math.dist(hull_points[i],hull_points[j]))
+            max_dist = np.maximum(max_dist, math.dist(hull_points[i], hull_points[j]))
     return max_dist
 
 
@@ -102,9 +102,9 @@ class SampleBasedMeanEstimation:
         self.diameter_ratio = 1.0
 
     def calculate_influence_sphere(self, x):
-        available_points = self.ref_points
+        available_points = self.ref_points.numpy()
         sphere = []
-        while available_points.size != 0:
+        while len(available_points) != 0:
             nn, available_points = nearest_neighbor(x, available_points)
             sphere.append(nn)
             available_points = remove_covered(x, nn, available_points)
@@ -134,7 +134,7 @@ class SampleBasedMeanEstimation:
     def estimate_mean(self, x):
         if x in (self.ref_points[:, :-1]).numpy():
             # TODO correctly apply where operator...
-            i, _ = np.where((self.ref_points[:,:-1]).numpy() == x)
+            i, _ = np.where((self.ref_points[:, :-1]).numpy() == x)
             ind = i[0]
             return self.ref_points[ind, -1]
         else:

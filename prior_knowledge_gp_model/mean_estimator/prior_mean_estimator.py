@@ -13,4 +13,4 @@ class PriorMeanEstimator(Mean):
 
     def forward(self, x):
         res = self.mean_estimator.calculate_means(x)
-        return torch.FloatTensor(res)
+        return torch.tensor(res)

@@ -32,7 +32,7 @@ class PriorMeanGaussianProcess(ExactGP):
     def fit(self, points: tf.Tensor, values: tf.Tensor):
         self.set_train_data(inputs=torch.as_tensor(points.numpy()), targets=torch.as_tensor(values.numpy()), strict=False)
 
-        optimizer = Adam(self.parameters(), lr=0.01)
+        optimizer = Adam(self.parameters(), lr=0.03)
         mll = ExactMarginalLogLikelihood(self.likelihood, self)
         scheduler = ExponentialLR(optimizer, gamma=0.9)
 

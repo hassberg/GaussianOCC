@@ -8,15 +8,19 @@ from active_learning_ts.knowledge_discovery.no_knowledge_discovery_task import N
 from active_learning_ts.pools.retrievement_strategies.exact_retrievement import ExactRetrievement
 from active_learning_ts.query_selection.query_optimizers.max_improvement_query_optimizer import MaximumImprovementQueryOptimizer
 from active_learning_ts.query_selection.query_samplers.random_query_sampler import RandomContinuousQuerySampler
-from active_learning_ts.query_selection.selection_criterias.no_selection_criteria import NoSelectionCriteria
+from active_learning_ts.query_selection.selection_criterias.knowledge_uncertainty_selection_criteria import KnowledgeUncertaintySelectionCriteria
 from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
 
-from DataSources.BananaDataSource import BananaDataSource
+from data_sources.BananaDataSource import BananaDataSource
+from knowledge_discovery_task.surrogate_stddev_discovery_task import SurrogateStdDevDiscoveryTask
 from prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
 from prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
+from evaluation.model_evaluator import ModelEvaluator
+from evaluation.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
+from evaluation.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
 
 repeat = 2
-learning_steps = 10
+learning_steps = 30
 num_knowledge_discovery_queries = 0
 
 data_source = BananaDataSource()
@@ -30,14 +34,14 @@ instance_level_objective = ConstantInstanceObjective()
 instance_cost = ConstantInstanceCost()
 
 surrogate_model = GaussianPriorMeanSurrogateModel(data_source.data_points,
-                                                  LocalOutlierFactor(data_source.data_points, k=5))
+                                                  LocalOutlierFactor(data_source.data_points, k=3))
 training_strategy = DirectTrainingStrategy()
 
 surrogate_sampler = RandomContinuousQuerySampler()
-query_optimizer = MaximumImprovementQueryOptimizer()
-selection_criteria = NoSelectionCriteria()
+query_optimizer = MaximumImprovementQueryOptimizer(num_tries=10)
+selection_criteria = KnowledgeUncertaintySelectionCriteria()
 
 knowledge_discovery_sampler = RandomContinuousQuerySampler()
-knowledge_discovery_task = NoKnowledgeDiscoveryTask()
+knowledge_discovery_task = SurrogateStdDevDiscoveryTask()
 
-evaluation_metrics = [RoundCounterEvaluator()]
+evaluation_metrics = [RoundCounterEvaluator(), ModelEvaluator([StddevDevelopmentEvaluator(), MeanDevelopmentEvaluator()])]
