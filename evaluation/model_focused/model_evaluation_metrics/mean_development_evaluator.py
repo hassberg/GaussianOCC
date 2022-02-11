@@ -1,4 +1,4 @@
-from evaluation.model_evaluation_metric import ModelEvaluationMetric
+from evaluation.model_focused.model_evaluation_metric import ModelEvaluationMetric
 import matplotlib.pyplot as plt
 
 
