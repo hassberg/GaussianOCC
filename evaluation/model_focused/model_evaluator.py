@@ -7,7 +7,7 @@ from active_learning_ts.experiments.blueprint import Blueprint
 from active_learning_ts.surrogate_models.surrogate_model import SurrogateModel
 from matplotlib.backends.backend_pdf import PdfPages
 
-from evaluation.model_evaluation_metric import ModelEvaluationMetric
+from evaluation.model_focused.model_evaluation_metric import ModelEvaluationMetric
 
 
 # extends evaluator, saves for query steps the results of the model..
