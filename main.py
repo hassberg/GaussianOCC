@@ -1,5 +1,5 @@
 from active_learning_ts.experiments.experiment_runner import ExperimentRunner
-from blueprints import custom_mean_gaussian_process_blueprint
+from blueprints.custom_mean_gaussian_process_blueprint import CustomMeanGaussianProcessBlueprint
 
-runner = ExperimentRunner(experiment_blueprints=[custom_mean_gaussian_process_blueprint], log=True)
+runner = ExperimentRunner(experiment_blueprints=[CustomMeanGaussianProcessBlueprint], log=True)
 runner.run()

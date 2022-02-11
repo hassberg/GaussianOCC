@@ -11,7 +11,6 @@ class StddevDevelopmentEvaluator(ModelEvaluationMetric):
         for i in range(len(prediction)):
             stddev_progress.append(prediction[i][1])
 
-        # TODO pointwise development
         for i in range(len(stddev_progress[0])):
             progress = []
             for j in range(len(stddev_progress)):

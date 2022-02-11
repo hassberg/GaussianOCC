@@ -2,46 +2,55 @@ from active_learning_ts.data_retrievement.augmentation.no_augmentation import No
 from active_learning_ts.data_retrievement.interpolation.interpolation_strategies.flat_map_interpolation import \
     FlatMapInterpolation
 from active_learning_ts.evaluation.evaluation_metrics.rounder_counter_evaluator import RoundCounterEvaluator
+from active_learning_ts.experiments.blueprint import Blueprint
 from active_learning_ts.instance_properties.costs.constant_instance_cost import ConstantInstanceCost
 from active_learning_ts.instance_properties.objectives.constant_instance_objective import ConstantInstanceObjective
 from active_learning_ts.knowledge_discovery.no_knowledge_discovery_task import NoKnowledgeDiscoveryTask
 from active_learning_ts.pools.retrievement_strategies.exact_retrievement import ExactRetrievement
-from active_learning_ts.query_selection.query_optimizers.max_improvement_query_optimizer import MaximumImprovementQueryOptimizer
+from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
 from active_learning_ts.query_selection.query_samplers.random_query_sampler import RandomContinuousQuerySampler
-from active_learning_ts.query_selection.selection_criterias.knowledge_uncertainty_selection_criteria import KnowledgeUncertaintySelectionCriteria
 from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
 
 from data_sources.BananaDataSource import BananaDataSource
-from knowledge_discovery_task.surrogate_stddev_discovery_task import SurrogateStdDevDiscoveryTask
-from prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
-from prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
-from evaluation.model_evaluator import ModelEvaluator
-from evaluation.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
+from evaluation.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
+from evaluation.model_evaluator import ModelEvaluator
+from prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
+from prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
+from selection_criteria.variance_based_query_selection import VarianceBasedQuerySelection
+from selection_criteria.decision_boundary_focused_query_selection import DecisionBoundaryFocusedQuerySelection
+from selection_criteria.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
 
-repeat = 2
-learning_steps = 30
-num_knowledge_discovery_queries = 0
 
-data_source = BananaDataSource()
-retrievement_strategy = ExactRetrievement()
-augmentation_pipeline = NoAugmentation()
+class CustomMeanGaussianProcessBlueprint(Blueprint):
 
-#TODO was genau mach die interpolation strategy? und warum nimmt sie nen 3D array an?
-interpolation_strategy = FlatMapInterpolation()
+    repeat = 2
 
-instance_level_objective = ConstantInstanceObjective()
-instance_cost = ConstantInstanceCost()
+    def __init__(self):
+        self.learning_steps = 30
+        self.num_knowledge_discovery_queries = 0
 
-surrogate_model = GaussianPriorMeanSurrogateModel(data_source.data_points,
-                                                  LocalOutlierFactor(data_source.data_points, k=3))
-training_strategy = DirectTrainingStrategy()
+        self.data_source = BananaDataSource()
+        self.retrievement_strategy = ExactRetrievement()
+        self.augmentation_pipeline = NoAugmentation()
 
-surrogate_sampler = RandomContinuousQuerySampler()
-query_optimizer = MaximumImprovementQueryOptimizer(num_tries=10)
-selection_criteria = KnowledgeUncertaintySelectionCriteria()
+        self.interpolation_strategy = FlatMapInterpolation()
 
-knowledge_discovery_sampler = RandomContinuousQuerySampler()
-knowledge_discovery_task = SurrogateStdDevDiscoveryTask()
+        self.instance_level_objective = ConstantInstanceObjective()
+        self.instance_cost = ConstantInstanceCost()
 
-evaluation_metrics = [RoundCounterEvaluator(), ModelEvaluator([StddevDevelopmentEvaluator(), MeanDevelopmentEvaluator()])]
+        self.surrogate_model = GaussianPriorMeanSurrogateModel(LocalOutlierFactor(k=3))
+        self.training_strategy = DirectTrainingStrategy()
+
+        ## important things
+        self.surrogate_sampler = RandomContinuousQuerySampler()
+        self.query_optimizer = MaximumQueryOptimizer(num_tries=20)
+        # TODO here use of surrogate model to rate queries
+        self.selection_criteria = UncertaintyBasedQuerySelection()
+        ##
+
+        self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
+        self.knowledge_discovery_task = NoKnowledgeDiscoveryTask()
+
+        self.evaluation_metrics = [RoundCounterEvaluator(),
+                                   ModelEvaluator([StddevDevelopmentEvaluator(), MeanDevelopmentEvaluator()])]

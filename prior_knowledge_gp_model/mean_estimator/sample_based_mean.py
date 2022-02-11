@@ -49,6 +49,7 @@ def gram_schmidt(vectors):
 
 
 def change_of_basis(new_basis):
+    # Todo new basis as 0:0??
     old_basis = np.zeros((len(new_basis), len(new_basis)))
     for i in range(len(new_basis)):
         old_basis[i][i] = 1
