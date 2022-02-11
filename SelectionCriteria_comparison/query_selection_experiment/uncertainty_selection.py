@@ -22,7 +22,7 @@ from selection_criteria.decision_boundary_focused_query_selection import Decisio
 from selection_criteria.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
 
 
-class CustomMeanGaussianProcessBlueprint(Blueprint):
+class UncertaintyBasedSelectionBP(Blueprint):
     repeat = 2
 
     def __init__(self):
@@ -41,16 +41,13 @@ class CustomMeanGaussianProcessBlueprint(Blueprint):
         self.surrogate_model = GaussianPriorMeanSurrogateModel(LocalOutlierFactor(k=3))
         self.training_strategy = DirectTrainingStrategy()
 
-        ## important things
         self.surrogate_sampler = RandomContinuousQuerySampler()
         self.query_optimizer = MaximumQueryOptimizer(num_tries=10)
-        # TODO here use of surrogate model to rate queries
         self.selection_criteria = UncertaintyBasedQuerySelection()
-        ##
 
         self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
         self.knowledge_discovery_task = NoKnowledgeDiscoveryTask()
 
         self.evaluation_metrics = [RoundCounterEvaluator(),
                                    ModelEvaluator([StddevDevelopmentEvaluator(), MeanDevelopmentEvaluator()],
-                                                  folder_path="main_")]
+                                                  folder_path="plot_out/UncertaintyBased_")]
