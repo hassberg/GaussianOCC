@@ -12,15 +12,18 @@ from active_learning_ts.query_selection.query_samplers.random_query_sampler impo
 from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
 
 from data_sources.BananaDataSource import BananaDataSource
+from evaluation.al_learning_curve_focused.active_learning_curve_evaluator import ActiveLearningCurveEvaluator
+from evaluation.al_learning_curve_focused.active_learning_curve_metric.basic_active_learning_curve_metric import \
+    BasicActiveLearningCurveMetric
 from evaluation.model_focused.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
 from evaluation.model_focused.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_focused.model_evaluator import ModelEvaluator
 from prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
 from prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
-from selection_criteria.decision_boundary_focused_query_selection import DecisionBoundaryFocusedQuerySelection
+from selection_criteria.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
 
 
-class MeanBasedSelectionBP(Blueprint):
+class UncertaintyBasedSelectionBP(Blueprint):
     repeat = 2
 
     def __init__(self):
@@ -39,16 +42,14 @@ class MeanBasedSelectionBP(Blueprint):
         self.surrogate_model = GaussianPriorMeanSurrogateModel(LocalOutlierFactor(k=3))
         self.training_strategy = DirectTrainingStrategy()
 
-        ## important things
         self.surrogate_sampler = RandomContinuousQuerySampler()
         self.query_optimizer = MaximumQueryOptimizer(num_tries=10)
-        # TODO here use of surrogate model to rate queries
-        self.selection_criteria = DecisionBoundaryFocusedQuerySelection()
-        ##
+        self.selection_criteria = UncertaintyBasedQuerySelection()
 
         self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
         self.knowledge_discovery_task = NoKnowledgeDiscoveryTask()
 
         self.evaluation_metrics = [RoundCounterEvaluator(),
                                    ModelEvaluator([StddevDevelopmentEvaluator(), MeanDevelopmentEvaluator()],
-                                                  folder_path="plot_out/DecisionBoundaryBased_")]
+                                                  folder_path="plot_out/UncertaintyBased_"),
+                                   ActiveLearningCurveEvaluator([BasicActiveLearningCurveMetric()])]

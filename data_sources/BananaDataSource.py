@@ -39,7 +39,6 @@ def generate(**kwargs):
     return data, label
 
 
-# 2D data of
 class BananaDataSource(DataSource):
     def __init__(self):
         points, labels = generate(class_member=100, outlier=20)
@@ -50,11 +49,11 @@ class BananaDataSource(DataSource):
 
     # TODO someone should somewhere mention that these are indices.. and that its just one
     def query(self, actual_queries: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-        # TODO this is only for interpolation
         data_points = []
         data_labels = []
-        data_points.append(self.data_points[actual_queries[0].numpy()])
-        data_labels.append(self.true_labels[actual_queries[0].numpy()])
+        for i in range(len(actual_queries)):
+            data_points.append(self.data_points[actual_queries[i].numpy()])
+            data_labels.append(self.true_labels[actual_queries[i].numpy()])
         return data_points, data_labels
 
     def possible_queries(self) -> Pool:
