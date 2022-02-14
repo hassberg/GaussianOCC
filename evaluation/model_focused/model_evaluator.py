@@ -39,3 +39,4 @@ class ModelEvaluator(EvaluationMetric):
             with PdfPages(file_name) as pdf:
                 for m in self.model_evaluation_metrics:
                     m.evaluate_model(self.query_points, self.prediction_list, pdf)
+        return "[]"

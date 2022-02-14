@@ -26,4 +26,4 @@ class BasicActiveLearningCurveMetric(LearningCurveMetric):
         return numpy.divide(correctness, len(self.ground_truth))
 
     def evaluate_learning_curve(self, learning_curve: tf.Tensor):
-        return ",".join(str(x.numpy()) for x in learning_curve)
+        return '[' + ", ".join(str(x.numpy()) for x in learning_curve) + ']'

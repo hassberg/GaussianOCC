@@ -47,7 +47,7 @@ class ActiveLearningCurveEvaluator(EvaluationMetric):
                 tf.reshape(tf.convert_to_tensor([x[1] for x in self.curve_scoring]), shape=(len(self.curve_scoring))))))
          for i in
          range(len(self.learning_curve_evaluation_metrics))]
-        return out
+        return '{\n' + ',\n'.join(out) + '\n}\n'
 
     def get_round_scoring(self):
         round_scoring = []
