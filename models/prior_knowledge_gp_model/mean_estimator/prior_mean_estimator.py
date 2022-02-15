@@ -1,7 +1,7 @@
 import torch
 import tensorflow as tf
 from gpytorch.means.mean import Mean
-from prior_knowledge_gp_model.mean_estimator.sample_based_mean import SampleBasedMeanEstimation
+from models.prior_knowledge_gp_model.mean_estimator.sample_based_mean import SampleBasedMeanEstimation
 
 
 # TODO usage a trained model, e.g SVDD, to derive prior mean knowledge

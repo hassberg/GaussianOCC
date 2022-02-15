@@ -3,21 +3,18 @@ from typing import Tuple
 
 import torch
 from active_learning_ts.surrogate_models.surrogate_model import SurrogateModel
-from prior_knowledge_gp_model.prior_mean_gaussian_process import PriorMeanGaussianProcess
-from prior_knowledge_gp_model.classifiers.outlier_scoring_method import OutlierScoringMethod
+from models.constant_prior_gp_model.constant_gaussian_process import ConstantGaussianProcess
 
 from gpytorch.likelihoods import GaussianLikelihood
 
 
-class GaussianPriorMeanSurrogateModel(SurrogateModel):
+class ConstantPriorMeanSurrogateModel(SurrogateModel):
 
-    def __init__(self, outlier_scoring_method: OutlierScoringMethod):
+    def __init__(self):
         self.training_points = None
         self.training_values = None
         self.query_pool = None
         self.gaussian_process_model = None
-        # TODO calculate prior class distribution here instead?...
-        self.outlier_scoring_method = outlier_scoring_method
 
     def post_init(self, data_retriever):
         self.query_pool = data_retriever.get_query_pool()
@@ -25,10 +22,7 @@ class GaussianPriorMeanSurrogateModel(SurrogateModel):
         self.value_shape = data_retriever.value_shape
         initial_data_point = torch.empty(1, (len(self.query_pool.get_all_elements()[0])), dtype=torch.double)
         initial_sample = torch.empty(1, dtype=torch.double)
-        self.gaussian_process_model = PriorMeanGaussianProcess(self.query_pool.get_all_elements(),
-                                                               self.outlier_scoring_method.calculate_scoring(
-                                                                   self.query_pool.get_all_elements()),
-                                                               initial_data_point, initial_sample, GaussianLikelihood())
+        self.gaussian_process_model = ConstantGaussianProcess(initial_data_point, initial_sample, GaussianLikelihood())
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
         if self.training_points is None:

@@ -3,7 +3,7 @@ import math
 
 import torch
 
-from prior_knowledge_gp_model.classifiers.outlier_scoring_method import OutlierScoringMethod
+from models.prior_knowledge_gp_model.classifiers.outlier_scoring_method import OutlierScoringMethod
 
 
 class LocalOutlierFactor(OutlierScoringMethod):

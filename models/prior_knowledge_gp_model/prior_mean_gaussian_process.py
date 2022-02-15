@@ -8,7 +8,7 @@ from gpytorch.models import ExactGP
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 
-from prior_knowledge_gp_model.mean_estimator.prior_mean_estimator import PriorMeanEstimator
+from models.prior_knowledge_gp_model.mean_estimator.prior_mean_estimator import PriorMeanEstimator
 
 
 class PriorMeanGaussianProcess(ExactGP):

@@ -15,19 +15,20 @@ from data_sources.BananaDataSource import BananaDataSource
 from evaluation.al_learning_curve_focused.active_learning_curve_evaluator import ActiveLearningCurveEvaluator
 from evaluation.al_learning_curve_focused.active_learning_curve_metric.basic_active_learning_curve_metric import \
     BasicActiveLearningCurveMetric
+from evaluation.al_learning_curve_focused.active_learning_curve_metric.certainty_reached import CertaintyReachedMetric
 from evaluation.model_focused.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
 from evaluation.model_focused.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_focused.model_evaluator import ModelEvaluator
-from prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
-from prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
+from models.prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
+from models.prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
 from selection_criteria.decision_boundary_focused_query_selection import DecisionBoundaryFocusedQuerySelection
 
 
-class MeanBasedSelectionBP(Blueprint):
-    repeat = 2
+class CustomPriorMeanBasedBP(Blueprint):
+    repeat = 20
 
     def __init__(self):
-        self.learning_steps = 30
+        self.learning_steps = 15
         self.num_knowledge_discovery_queries = 0
 
         self.data_source = BananaDataSource()
@@ -44,7 +45,7 @@ class MeanBasedSelectionBP(Blueprint):
 
         ## important things
         self.surrogate_sampler = RandomContinuousQuerySampler()
-        self.query_optimizer = MaximumQueryOptimizer(num_tries=10)
+        self.query_optimizer = MaximumQueryOptimizer(num_tries=30)
         # TODO here use of surrogate model to rate queries
         self.selection_criteria = DecisionBoundaryFocusedQuerySelection()
         ##
@@ -54,5 +55,5 @@ class MeanBasedSelectionBP(Blueprint):
 
         self.evaluation_metrics = [RoundCounterEvaluator(),
                                    ModelEvaluator([StddevDevelopmentEvaluator(), MeanDevelopmentEvaluator()],
-                                                  folder_path="plot_out/DecisionBoundaryBased_"),
-                                   ActiveLearningCurveEvaluator([BasicActiveLearningCurveMetric()])]
+                                                  folder_path="plot_out/CustomMean_"),
+                                   ActiveLearningCurveEvaluator([BasicActiveLearningCurveMetric(), CertaintyReachedMetric()])]

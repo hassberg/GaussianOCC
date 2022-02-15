@@ -44,7 +44,7 @@ class ActiveLearningCurveEvaluator(EvaluationMetric):
         f = lambda x: '[' + ', '.join([str(a) for a in x]) + ']' if isinstance(x, list) else str(x)
         [out.append('"' + type(self.learning_curve_evaluation_metrics[i]).__name__ + '" : ' + f(
             self.learning_curve_evaluation_metrics[i].evaluate_learning_curve(
-                tf.reshape(tf.convert_to_tensor([x[1] for x in self.curve_scoring]), shape=(len(self.curve_scoring))))))
+                tf.reshape(tf.convert_to_tensor([x[1][i] for x in self.curve_scoring]), shape=(len(self.curve_scoring))))))
          for i in
          range(len(self.learning_curve_evaluation_metrics))]
         return '{\n' + ',\n'.join(out) + '\n}\n'

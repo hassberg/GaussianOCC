@@ -1,0 +1,9 @@
+from _experimental_settings.selection_criteria_comparison.query_selection_experiment.var_selection import VarianceBasedSelectionBP
+from _experimental_settings.selection_criteria_comparison.query_selection_experiment.mean_selection import MeanBasedSelectionBP
+from _experimental_settings.selection_criteria_comparison.query_selection_experiment.uncertainty_selection import UncertaintyBasedSelectionBP
+
+from active_learning_ts.experiments.experiment_runner import ExperimentRunner
+
+runner = ExperimentRunner(
+    experiment_blueprints=[VarianceBasedSelectionBP, MeanBasedSelectionBP, UncertaintyBasedSelectionBP], log=True)
+runner.run()
