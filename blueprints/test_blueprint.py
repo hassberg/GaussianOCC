@@ -24,7 +24,7 @@ from evaluation.al_learning_curve_focused.active_learning_curve_metric.basic_act
 
 
 class TestBlueprint(Blueprint):
-    repeat = 2
+    repeat = 1
 
     def __init__(self):
         self.learning_steps = 30
