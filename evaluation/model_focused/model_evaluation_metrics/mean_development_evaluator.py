@@ -15,7 +15,7 @@ class MeanDevelopmentEvaluator(ModelEvaluationMetric):
         for i in range(len(stddev_progress[0])):
             progress = []
             for j in range(len(stddev_progress)):
-                progress.append(stddev_progress[j].detach().numpy()[i])
+                progress.append(stddev_progress[j].numpy()[i])
             plt.plot(progress)
 
         pdf.savefig()

@@ -6,7 +6,7 @@ from typing import Tuple, List
 
 
 def get_membership_prediction(class_prediction=tf.Tensor):
-    return tf.map_fn((lambda t: 1 if (t >= -0.01) else -1), class_prediction.detach())
+    return tf.map_fn((lambda t: 1 if (t >= -0.01) else -1), class_prediction)
 
 
 class BasicActiveLearningCurveMetric(LearningCurveMetric):

@@ -15,16 +15,15 @@ from data_sources.BananaDataSource import BananaDataSource
 from evaluation.model_focused.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
 from evaluation.model_focused.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_focused.model_evaluator import ModelEvaluator
-from models.prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
-from models.prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
 from selection_criteria.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
+from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 from evaluation.al_learning_curve_focused.active_learning_curve_evaluator import ActiveLearningCurveEvaluator
 from evaluation.al_learning_curve_focused.active_learning_curve_metric.basic_active_learning_curve_metric import \
     BasicActiveLearningCurveMetric
 
 
-class CustomMeanGaussianProcessBlueprint(Blueprint):
+class TestBlueprint(Blueprint):
     repeat = 2
 
     def __init__(self):
@@ -40,7 +39,7 @@ class CustomMeanGaussianProcessBlueprint(Blueprint):
         self.instance_level_objective = ConstantInstanceObjective()
         self.instance_cost = ConstantInstanceCost()
 
-        self.surrogate_model = GaussianPriorMeanSurrogateModel(LocalOutlierFactor(k=3))
+        self.surrogate_model = SVDDNegSurrogateModel()
         self.training_strategy = DirectTrainingStrategy()
 
         ## important things

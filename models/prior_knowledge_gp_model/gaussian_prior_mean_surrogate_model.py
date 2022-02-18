@@ -47,9 +47,9 @@ class GaussianPriorMeanSurrogateModel(SurrogateModel):
         prediction = self.gaussian_process_model.likelihood(
             self.gaussian_process_model(torch.as_tensor(points.numpy())))
         # standard deviation as measure for uncertainty..
-        return prediction.stddev
+        return prediction.stddev.detach()
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         prediction = self.gaussian_process_model.likelihood(
             self.gaussian_process_model(torch.as_tensor(points.numpy())))
-        return points, prediction.mean
+        return points, prediction.mean.detach()
