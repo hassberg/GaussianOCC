@@ -16,7 +16,6 @@ from evaluation.model_focused.model_evaluation_metrics.mean_development_evaluato
 from evaluation.model_focused.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_focused.model_evaluator import ModelEvaluator
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
-from models.two_svdds_one_class_classifier.two_svdds_classifier import TwoSVDDSClassifierSurrogateModel
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 from evaluation.al_learning_curve_focused.active_learning_curve_evaluator import ActiveLearningCurveEvaluator
@@ -40,7 +39,7 @@ class TestBlueprint(Blueprint):
         self.instance_level_objective = ConstantInstanceObjective()
         self.instance_cost = ConstantInstanceCost()
 
-        self.surrogate_model = TwoSVDDSClassifierSurrogateModel()
+        self.surrogate_model = SVDDNegSurrogateModel()
         self.training_strategy = DirectTrainingStrategy()
 
         ## important things
