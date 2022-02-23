@@ -5,7 +5,7 @@ from active_learning_ts.surrogate_models.surrogate_model import SurrogateModel
 import tensorflow as tf
 import numpy as np
 
-from models.svdd_neg.BaseSVDD import BaseSVDD
+from models.common_resource.BaseSVDD import BaseSVDD
 
 
 class SVDDNegSurrogateModel(SurrogateModel):

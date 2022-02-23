@@ -15,7 +15,8 @@ from data_sources.BananaDataSource import BananaDataSource
 from evaluation.model_focused.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
 from evaluation.model_focused.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_focused.model_evaluator import ModelEvaluator
-from selection_criteria.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
+from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
+from models.two_svdds_one_class_classifier.two_svdds_classifier import TwoSVDDSClassifierSurrogateModel
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 from evaluation.al_learning_curve_focused.active_learning_curve_evaluator import ActiveLearningCurveEvaluator
@@ -27,7 +28,7 @@ class TestBlueprint(Blueprint):
     repeat = 1
 
     def __init__(self):
-        self.learning_steps = 30
+        self.learning_steps = 70
         self.num_knowledge_discovery_queries = 0
 
         self.data_source = BananaDataSource()
@@ -39,14 +40,14 @@ class TestBlueprint(Blueprint):
         self.instance_level_objective = ConstantInstanceObjective()
         self.instance_cost = ConstantInstanceCost()
 
-        self.surrogate_model = SVDDNegSurrogateModel()
+        self.surrogate_model = TwoSVDDSClassifierSurrogateModel()
         self.training_strategy = DirectTrainingStrategy()
 
         ## important things
         self.surrogate_sampler = RandomContinuousQuerySampler()
-        self.query_optimizer = MaximumQueryOptimizer(num_tries=10)
+        self.query_optimizer = MaximumQueryOptimizer(num_tries=100)
         # TODO here use of surrogate model to rate queries
-        self.selection_criteria = UncertaintyBasedQuerySelection()
+        self.selection_criteria = RandomOutlierSamplingSelectionCriteria()
         ##
 
         self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
