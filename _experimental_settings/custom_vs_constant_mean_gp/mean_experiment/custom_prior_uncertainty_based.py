@@ -19,16 +19,16 @@ from evaluation.al_learning_curve_focused.active_learning_curve_metric.certainty
 from evaluation.model_focused.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
 from evaluation.model_focused.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_focused.model_evaluator import ModelEvaluator
-from models.prior_knowledge_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
-from models.prior_knowledge_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
+from models.prior_knowledge_discrete_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
+from models.prior_knowledge_discrete_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
 from selection_criteria.gp_model.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
 
 
 class CustomPriorUncertaintyBasedBP(Blueprint):
-    repeat = 20
+    repeat = 10
 
     def __init__(self):
-        self.learning_steps = 15
+        self.learning_steps = 10
         self.num_knowledge_discovery_queries = 0
 
         self.data_source = BananaDataSource()
@@ -45,7 +45,7 @@ class CustomPriorUncertaintyBasedBP(Blueprint):
 
         ## important things
         self.surrogate_sampler = RandomContinuousQuerySampler()
-        self.query_optimizer = MaximumQueryOptimizer(num_tries=30)
+        self.query_optimizer = MaximumQueryOptimizer(num_tries=120)
         # TODO here use of surrogate model to rate queries
         self.selection_criteria = UncertaintyBasedQuerySelection()
         ##

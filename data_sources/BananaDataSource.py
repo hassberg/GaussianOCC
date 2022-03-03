@@ -41,7 +41,7 @@ def generate(**kwargs):
 
 class BananaDataSource(DataSource):
     def __init__(self):
-        points, labels = generate(class_member=95, outlier=25)
+        points, labels = generate(class_member=110, outlier=10)
         self.data_points = tf.convert_to_tensor(points)
         self.point_shape = points.shape
         self.true_labels = tf.convert_to_tensor(labels)

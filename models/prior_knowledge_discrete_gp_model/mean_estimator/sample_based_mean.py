@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import math
 import tensorflow as tf
@@ -13,8 +15,9 @@ def max_pairwise_dist(hull_points):
 
 
 def calc_diameter(points):
-    convex_hull_points = tf.gather(points, np.unique(ConvexHull(points).simplices.flat))
-    return max_pairwise_dist(convex_hull_points)
+    sample_points = tf.convert_to_tensor(np.asarray(points)[random.sample(range(len(points)), 50)])
+    # convex_hull_points = tf.gather(points, np.unique(ConvexHull(sample_points).simplices.flat))
+    return max_pairwise_dist(sample_points)
 
 
 def nearest_neighbor(x, remaining_points):

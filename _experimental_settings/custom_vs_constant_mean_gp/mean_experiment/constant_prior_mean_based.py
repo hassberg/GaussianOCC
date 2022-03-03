@@ -24,10 +24,10 @@ from selection_criteria.gp_model.decision_boundary_focused_query_selection impor
 
 
 class ConstantPriorMeanBasedBP(Blueprint):
-    repeat = 20
+    repeat = 10
 
     def __init__(self):
-        self.learning_steps = 15
+        self.learning_steps = 10
         self.num_knowledge_discovery_queries = 0
 
         self.data_source = BananaDataSource()
@@ -44,7 +44,7 @@ class ConstantPriorMeanBasedBP(Blueprint):
 
         ## important things
         self.surrogate_sampler = RandomContinuousQuerySampler()
-        self.query_optimizer = MaximumQueryOptimizer(num_tries=30)
+        self.query_optimizer = MaximumQueryOptimizer(num_tries=120)
         # TODO here use of surrogate model to rate queries
         self.selection_criteria = DecisionBoundaryFocusedQuerySelection()
         ##

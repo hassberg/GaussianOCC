@@ -11,12 +11,20 @@ from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer
 from active_learning_ts.query_selection.query_samplers.random_query_sampler import RandomContinuousQuerySampler
 from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
 
+from _experimental_settings.custom_vs_constant_mean_gp.mean_experiment.custom_prior_mean_based import \
+    CustomPriorMeanBasedBP
+from data_sources.waveform.waveform_datasource import WaveformDatasource
 from data_sources.BananaDataSource import BananaDataSource
 from evaluation.model_focused.model_evaluation_metrics.mean_development_evaluator import MeanDevelopmentEvaluator
 from evaluation.model_focused.model_evaluation_metrics.stddev_development_evaluator import StddevDevelopmentEvaluator
 from evaluation.model_focused.model_evaluator import ModelEvaluator
+from models.prior_knowledge_discrete_gp_model.classifiers.local_outlier_scoring import LocalOutlierFactor
+from models.prior_knowledge_discrete_gp_model.gaussian_prior_mean_surrogate_model import GaussianPriorMeanSurrogateModel
+from selection_criteria.gp_model.decision_boundary_focused_query_selection import DecisionBoundaryFocusedQuerySelection
+from selection_criteria.gp_model.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
+from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surrogate_model import CustomModelBasedPriorMeanSurrogateModel
 
 from evaluation.al_learning_curve_focused.active_learning_curve_evaluator import ActiveLearningCurveEvaluator
 from evaluation.al_learning_curve_focused.active_learning_curve_metric.basic_active_learning_curve_metric import \
@@ -27,10 +35,11 @@ class TestBlueprint(Blueprint):
     repeat = 1
 
     def __init__(self):
-        self.learning_steps = 70
+        self.learning_steps = 100
         self.num_knowledge_discovery_queries = 0
 
-        self.data_source = BananaDataSource()
+        # self.data_source = BananaDataSource()
+        self.data_source = WaveformDatasource()
         self.retrievement_strategy = ExactRetrievement()
         self.augmentation_pipeline = NoAugmentation()
 
@@ -39,14 +48,14 @@ class TestBlueprint(Blueprint):
         self.instance_level_objective = ConstantInstanceObjective()
         self.instance_cost = ConstantInstanceCost()
 
-        self.surrogate_model = SVDDNegSurrogateModel()
+        self.surrogate_model = CustomModelBasedPriorMeanSurrogateModel()
         self.training_strategy = DirectTrainingStrategy()
 
         ## important things
         self.surrogate_sampler = RandomContinuousQuerySampler()
-        self.query_optimizer = MaximumQueryOptimizer(num_tries=100)
+        self.query_optimizer = MaximumQueryOptimizer(num_tries=1000)
         # TODO here use of surrogate model to rate queries
-        self.selection_criteria = RandomOutlierSamplingSelectionCriteria()
+        self.selection_criteria = UncertaintyBasedQuerySelection()
         ##
 
         self.knowledge_discovery_sampler = RandomContinuousQuerySampler()
