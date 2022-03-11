@@ -2,7 +2,7 @@ from active_learning_ts.query_selection.selection_criteria import SelectionCrite
 import tensorflow as tf
 
 
-class DecisionBoundaryFocusedQuerySelection(SelectionCriteria):
+class GpDecisionBoundaryFocusedQuerySelection(SelectionCriteria):
 
     def score_queries(self, queries: tf.Tensor) -> tf.Tensor:
         result = self.surrogate_model.query(queries)

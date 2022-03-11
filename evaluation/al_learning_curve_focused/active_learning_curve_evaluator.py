@@ -1,6 +1,6 @@
-from active_learning_ts.data_blackboard import Blackboard
+from active_learning_ts.logging.data_blackboard import Blackboard
 from active_learning_ts.evaluation.evaluation_metric import EvaluationMetric
-from active_learning_ts.surrogate_models.surrogate_model import SurrogateModel
+from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
 import tensorflow as tf
 
 from evaluation.al_learning_curve_focused.learning_curve_metric import LearningCurveMetric
@@ -44,6 +44,8 @@ class ActiveLearningCurveEvaluator(EvaluationMetric):
         self.round_counter += 1
 
     def get_evaluation(self):
+        self.save_iteration_scoring()
+
         out = []
         f = lambda x: '[' + ', '.join([str(a) for a in x]) + ']' if isinstance(x, list) else str(x)
         [out.append('"' + type(self.learning_curve_evaluation_metrics[i]).__name__ + '" : ' + f(
@@ -72,9 +74,13 @@ class ActiveLearningCurveEvaluator(EvaluationMetric):
     def get_round_scoring(self):
         round_scoring = []
         scoring = self.surrogate_model.query(self.query_points)[1], self.surrogate_model.uncertainty(self.query_points)
-        self.iteration_scoring.append(scoring)
 
         for i in range(len(self.learning_curve_evaluation_metrics)):
             round_scoring.append(self.learning_curve_evaluation_metrics[i].calculate_curve_step(scoring))
 
         return round_scoring
+
+    def save_iteration_scoring(self):
+        scoring = self.surrogate_model.query(self.query_points)[1], self.surrogate_model.uncertainty(self.query_points)
+        self.iteration_scoring.append(scoring)
+

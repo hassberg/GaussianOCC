@@ -1,9 +1,10 @@
 from typing import Tuple
 
 from active_learning_ts.data_retrievement.data_retriever import DataRetriever
-from active_learning_ts.surrogate_models.surrogate_model import SurrogateModel
+from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
 import tensorflow as tf
 import numpy as np
+from sklearn.svm import OneClassSVM
 
 from models.common_resource.BaseSVDD import BaseSVDD
 
@@ -11,7 +12,7 @@ from models.common_resource.BaseSVDD import BaseSVDD
 class SVDDNegSurrogateModel(SurrogateModel):
 
     def __init__(self):
-        self.svdd_model = BaseSVDD(display='off')
+        self.svdd_model = OneClassSVM(nu=0.05)
         self.available_points = None
         self.labels = None
 
@@ -25,7 +26,7 @@ class SVDDNegSurrogateModel(SurrogateModel):
         self.svdd_model.fit(self.available_points, self.labels)
 
     def uncertainty(self, points: tf.Tensor) -> tf.Tensor:
-        uncertainty = self.svdd_model.get_distance(points.numpy()) - self.svdd_model.radius
+        uncertainty = self.svdd_model.score_samples(points.numpy())
         return tf.convert_to_tensor(uncertainty)
 
     def learn(self, points: tf.Tensor, feedback: tf.Tensor):
@@ -35,7 +36,7 @@ class SVDDNegSurrogateModel(SurrogateModel):
         else:
             print("else.. append?")
 
-        self.svdd_model = BaseSVDD(display='off')
+        self.svdd_model = OneClassSVM(nu=0.05)
         self.svdd_model.fit(self.available_points, self.labels)
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:

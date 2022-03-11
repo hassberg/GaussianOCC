@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 import tensorflow as tf
 from active_learning_ts.data_retrievement.data_source import DataSource
-from active_learning_ts.pools.discrete_vector_pool import DiscreteVectorPool, Pool
+from active_learning_ts.data_retrievement.pools.discrete_vector_pool import DiscreteVectorPool, Pool
 
 
 def generate(**kwargs):

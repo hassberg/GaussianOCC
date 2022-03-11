@@ -8,12 +8,13 @@ from gpytorch.models import ExactGP
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 from gpytorch.means.constant_mean import ConstantMean
+from gpytorch.means.zero_mean import ZeroMean
 
 
 class ConstantGaussianProcess(ExactGP):
     def __init__(self, train_data: tf.Tensor, train_values: tf.Tensor, likelihood):
         super(ConstantGaussianProcess, self).__init__(train_data, train_values, likelihood)
-        self.mean_module = ConstantMean()
+        self.mean_module = ZeroMean()
         self.covariance_module = ScaleKernel(RBFKernel())
         self.likelihood.initialize(noise=1)
         self.eval()
@@ -31,9 +32,9 @@ class ConstantGaussianProcess(ExactGP):
         self.set_train_data(inputs=torch.as_tensor(points.numpy()), targets=torch.as_tensor(values.numpy()),
                             strict=False)
 
-        optimizer = Adam(self.parameters(), lr=0.03)
+        optimizer = Adam(self.parameters())
         mll = ExactMarginalLogLikelihood(self.likelihood, self)
-        scheduler = ExponentialLR(optimizer, gamma=0.9)
+        # scheduler = ExponentialLR(optimizer, gamma=0.9)
 
         stable = False
         previous_loss = torch.tensor(0.0)
@@ -46,7 +47,7 @@ class ConstantGaussianProcess(ExactGP):
             loss.backward()
 
             optimizer.step()
-            scheduler.step()
+            # scheduler.step()
 
             stable, stable_since = self.eval_stability(previous_loss, loss, stable_since)
             previous_loss = loss

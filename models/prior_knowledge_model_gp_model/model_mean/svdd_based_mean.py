@@ -37,4 +37,4 @@ class SvddBasedMean(Mean):
                     score = -1 * ((dist - self.avg_outlier_dist)/(self.radius - self.avg_outlier_dist))
                     scores.append(score)
 
-        return torch.Tensor(scores)
+        return torch.Tensor(scores) * 0.5

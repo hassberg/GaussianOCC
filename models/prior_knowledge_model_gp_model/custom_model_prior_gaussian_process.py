@@ -13,7 +13,8 @@ from models.prior_knowledge_model_gp_model.model_mean.svdd_based_mean import Svd
 
 class CustomModelBasedGaussianProcess(ExactGP):
     def __init__(self, all_data: tf.Tensor, train_data: tf.Tensor, train_values, likelihood):
-        super(CustomModelBasedGaussianProcess, self).__init__(train_data, train_values, likelihood)
+        super(CustomModelBasedGaussianProcess, self).__init__(train_data, train_values,
+                                                              likelihood)  # TODO replace with actual value
         self.mean_module = SvddBasedMean(all_data)
         self.covariance_module = ScaleKernel(RBFKernel())
         self.likelihood.initialize(noise=1)
@@ -32,9 +33,9 @@ class CustomModelBasedGaussianProcess(ExactGP):
         self.set_train_data(inputs=torch.as_tensor(points.numpy()), targets=torch.as_tensor(values.numpy()),
                             strict=False)
 
-        optimizer = Adam(self.parameters(), lr=0.03)
+        optimizer = Adam(self.parameters())
         mll = ExactMarginalLogLikelihood(self.likelihood, self)
-        scheduler = ExponentialLR(optimizer, gamma=0.9)
+        # scheduler = ExponentialLR(optimizer, gamma=0.9)
 
         stable = False
         previous_loss = torch.tensor(0.0)
@@ -47,7 +48,7 @@ class CustomModelBasedGaussianProcess(ExactGP):
             loss.backward()
 
             optimizer.step()
-            scheduler.step()
+            # scheduler.step()
 
             stable, stable_since = self.eval_stability(previous_loss, loss, stable_since)
             previous_loss = loss

@@ -2,7 +2,7 @@ import tensorflow as tf
 from typing import Tuple
 
 import torch
-from active_learning_ts.surrogate_models.surrogate_model import SurrogateModel
+from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
 from models.constant_prior_gp_model.constant_gaussian_process import ConstantGaussianProcess
 from models.prior_knowledge_model_gp_model.custom_model_prior_gaussian_process import CustomModelBasedGaussianProcess
 
