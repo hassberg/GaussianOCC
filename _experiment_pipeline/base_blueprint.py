@@ -26,6 +26,8 @@ from active_learning_ts.training.training_strategies.direct_training_strategy im
 from active_learning_ts.training.training_strategy import TrainingStrategy
 
 from evaluation.mathew_correlation_coefficient import MatthewCorrelationCoefficient
+from query_optimizer.maximum_unique_full_query_optimizer import MaximumUniqueFullQueryOptimizer
+from query_sampler.full_discrete_query_sampler import FullDiscreteQuerySampler
 
 
 class BaseBlueprint(Blueprint):
@@ -53,10 +55,10 @@ class BaseBlueprint(Blueprint):
 
     surrogate_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQuerySampler]()
 
-    query_optimizer: BlueprintElement[QueryOptimizer] = None
+    query_optimizer: BlueprintElement[QueryOptimizer] = BlueprintElement[MaximumUniqueFullQueryOptimizer]()
 
     selection_criteria: BlueprintElement[SelectionCriteria] = None
 
     evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[RoundCounterEvaluator](), BlueprintElement[MatthewCorrelationCoefficient]()]
-    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQuerySampler]()
+    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[FullDiscreteQuerySampler]()
     knowledge_discovery_task: BlueprintElement[KnowledgeDiscoveryTask] = BlueprintElement[NoKnowledgeDiscoveryTask]()

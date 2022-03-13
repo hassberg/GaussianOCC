@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-Created on Tue Oct 26 11:21:17 2021
+Created on Sun Feb 27 00:37:30 2022
 
 @author: iqiukp
+see https://github.com/iqiukp/SVDD-Python
 """
 
 import numpy as np
@@ -35,8 +37,6 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         - if ``gamma='scale'`` (default) is passed then it uses
           1 / (n_features * X.var()) as value of gamma,
         - if 'auto', uses 1 / n_features.
-        .. versionchanged:: 0.22
-           The default value of ``gamma`` changed from 'auto' to 'scale'.
     coef0 : float, default=0.0
         Independent term in kernel function.
         It is only significant in 'poly' and 'sigmoid'.
@@ -49,7 +49,7 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
 
     """
 
-    def __init__(self,
+    def __init__(self, 
                  C=0.9,
                  kernel='rbf',
                  degree=3,
@@ -61,7 +61,7 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         self.C = C
         self.kernel = kernel
         self.degree = degree
-        self.gamma = gamma
+        self.gamma = gamma       
         self.coef0 = coef0
         self.n_jobs = n_jobs
         self.display = display
@@ -88,23 +88,23 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         self.running_time = None
         self.boundary_indices = None
         self.classes_ = None
+        
 
-    @property
+   
+    @property 
     def n_samples(self):
         return self.X.shape[0]
-
-    @property
+    @property 
     def n_features(self):
         return self.X.shape[1]
-
-    @property
+    @property 
     def n_positive_samples(self):
         return np.sum(self.y == 1)
-
-    @property
+    @property 
     def n_negative_samples(self):
         return np.sum(self.y == -1)
-
+    
+ 
     def fit(self, X, y=None, weight=None):
         """Fit the model from data in X.
 
@@ -113,10 +113,10 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         X : {array-like, sparse matrix}, shape (n_samples, n_features)
             The training input samples.
         y : array-like, shape (n_samples, 1)
-            The target values (class labels in classification,
+            The target values (class labels in classification, 
             1 for positive samples and -1 for negative samples)
         weight : array-like of shape (n_samples, 1), default=None
-
+            
         Returns
         -------
         self : object
@@ -129,15 +129,32 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
 
         if self.y_type == 'single':
             self.C = [self.C, 1]
-
+    
         if self.y_type == 'hybrid':
-            self.C = [self.C, 2 / self.n_negative_samples]
-
+            self.C = [self.C, 2/self.n_negative_samples]
+            
         if weight is None:
             self.weight = np.ones((self.n_samples, 1), dtype=np.int64)
         else:
-            self.weight = weight
-
+            self.weight = weight   
+            
+        # check 'gamma'
+        if self.gamma == 0:
+            raise ValueError(
+                "The gamma value of 0.0 is invalid. Use 'auto' to set"
+                " gamma to a value of 1 / n_features.") 
+        if self.gamma is None:
+            self.gamma = 'scale'
+        if isinstance(self.gamma, str):
+            if self.gamma == "scale":
+               X_var = X.var()
+               self.gamma = 1.0 / (X.shape[1] * X_var) if X_var != 0 else 1.0
+            elif self.gamma == "auto":
+                self.gamma = 1.0 / X.shape[1]
+            else:
+               raise ValueError(
+                   "When 'gamma' is a string, it should be either 'scale' or 'auto'.")
+  
         # get SVDD model
         self.get_model()
         display_ = self.display
@@ -148,11 +165,11 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         end_time = time.time()
         self.running_time = end_time - start_time
 
-        # display
+        # display    
         if self.display == 'on':
-            self.display_fit()
+           self.display_fit() 
         return self
-
+   
     def get_model(self):
         #
         K = self._get_kernel(self.X, self.X)
@@ -164,30 +181,31 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
             params = self.kernel_params or {}
         else:
             params = {"gamma": self.gamma, "degree": self.degree, "coef0": self.coef0}
+
         return pairwise_kernels(
             X, Y, metric=self.kernel, filter_params=True, n_jobs=self.n_jobs, **params)
 
     def solve_problem(self, K):
-        """
+        """ 
         DESCRIPTION
-
+        
         Solve the Lagrange dual problem using cvxopt
-
+        
 
         minimize      (1/2)*x'*P*x + q'*x
         subject to    G*x <= h
-                      A*x = b
+                      A*x = b                    
         --------------------------------------------------
-
-        """
+        
+        """ 
 
         solvers.options['show_progress'] = False
         K = np.multiply(self.y * self.y.T, K)
-
+        
         # P
         n = K.shape[0]
         P = K + K.T
-
+        
         # q
         q = -np.multiply(self.y, np.mat(np.diagonal(K)).T)
 
@@ -195,26 +213,26 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         G1 = -np.eye(n)
         G2 = np.eye(n)
         G = np.append(G1, G2, axis=0)
-
+        
         # h
         h1 = np.zeros([n, 1])
         h2 = np.ones([n, 1])
-
+        
         if self.y_type == 'single':
             h2[self.y == 1] = self.C[0] * self.weight[self.y == 1]
-
+        
         if self.y_type == 'hybrid':
             h2[self.y == 1] = self.C[0] * self.weight[self.y == 1]
             h2[self.y == -1] = self.C[1] * self.weight[self.y == -1]
 
         h = np.append(h1, h2, axis=0)
         h2_ = h2
-
+        
         # A, b
         A = np.ones([n, 1]).T
         b = np.ones([1, 1])
 
-        #
+        # 
         P = matrix(P)
         q = matrix(q)
         G = matrix(G)
@@ -224,7 +242,7 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
 
         #
         sol = solvers.qp(P, q, G, h, A, b)
-
+        
         self.object_value = np.array(sol['dual objective'])
         self.n_iterations = np.array(sol['iterations'])
 
@@ -233,16 +251,16 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
             self.alpha = np.zeros((self.n_samples, 1))
             self.alpha[0][0] = 1
         else:
-            self.alpha = np.array(sol['x'])
+            self.alpha = np.array(sol['x'])     
 
         self.alpha = self.y * self.alpha
         self.support_vector_indices = np.where(np.abs(self.alpha) > self.alpha_tolerance)[0][:]
-
-        # boundary indices
+        
+        # boundary indices  
         tmp_1 = self.alpha[self.support_vector_indices, 0]
         tmp_2 = h2_[self.support_vector_indices, 0]
-        tmp_3 = np.where(tmp_1 < tmp_2)[0][:]
-        tmp_4 = np.where(tmp_1 > self.alpha_tolerance)[0][:]
+        tmp_3 = np.where(tmp_1 < tmp_2)[0][:] 
+        tmp_4 = np.where(tmp_1 > self.alpha_tolerance)[0][:] 
         self.boundary_indices = self.support_vector_indices[np.array(list(set(tmp_3) & set(tmp_4)))]
 
         # support vectors
@@ -250,7 +268,7 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         self.support_vectors = self.X[self.support_vector_indices, :]
         self.support_vector_alpha = self.alpha[self.support_vector_indices]
         self.n_support_vectors = self.support_vector_indices.shape[0]
-        self.n_support_vectors_ratio = self.n_support_vectors / self.n_samples
+        self.n_support_vectors_ratio = self.n_support_vectors/self.n_samples
 
         if self.n_support_vectors_ratio > 0.5:
             warnings.warn("The fitted SVDD model may be overfitting.\n")
@@ -258,10 +276,10 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         # offset, center, radius
         tmp_5 = np.dot(np.ones((self.n_samples, 1)), self.alpha.T)
         tmp_6 = np.multiply(tmp_5, K)
-        tmp_ = -2 * np.sum(tmp_6, axis=1, keepdims=True)
-        self.offset = np.sum(np.multiply(np.dot(self.alpha, self.alpha.T), K))
+        tmp_ = -2*np.sum(tmp_6, axis=1, keepdims=True)        
+        self.offset = np.sum(np.multiply(np.dot(self.alpha, self.alpha.T), K)) 
         self.center = np.dot(self.alpha.T, self.X)
-        self.radius = np.sqrt(np.mean(np.diag(K)) + self.offset + np.mean(tmp_[self.boundary_indices, 0]))
+        self.radius = np.sqrt(np.mean(np.diag(K)) + self.offset+np.mean(tmp_[self.boundary_indices, 0]))
 
     def predict(self, X, y=None):
         """Predict the class labels for the provided data.
@@ -271,13 +289,13 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         X : array-like of shape (n_queries, n_features)
             Test samples.
         y : (optional) array-like, shape (n_samples, 1)
-            The target values (class labels in classification,
+            The target values (class labels in classification, 
             1 for positive samples and -1 for negative samples)
 
         Returns
         -------
         predicted_y : array-like, shape (n_samples, 1)
-            The predicted target values
+            The predicted target values 
         """
 
         start_time = time.time()
@@ -288,33 +306,33 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         results['predicted_y'] = np.mat(np.ones(results['n_samples'])).T
         index_ = results['distance'] > self.radius
         results['predicted_y'][index_] = -1
-        results['n_alarm'] = np.sum(index_ == True)
-
+        results['n_alarm'] = np.sum(index_==True)  
+          
         if results['exist_y'] == True:
             results['accuracy'] = accuracy_score(results['y'], results['predicted_y'])
 
         end_time = time.time()
         results['running_time'] = end_time - start_time
-        # display
+        # display    
         if self.display == 'on':
             self.display_predict(results)
         return results['predicted_y']
-
+    
     def get_distance(self, X):
         # compute the distance between the samples and the center
         K = self._get_kernel(X, self.X)
         K_ = self._get_kernel(X, X)
         tmp_1 = np.dot(np.ones((X.shape[0], 1), dtype=np.int64), self.alpha.T)
         tmp_2 = np.multiply(tmp_1, K)
-        tmp_ = -2 * np.sum(tmp_2, axis=1, keepdims=True)
-        distance = np.sqrt(np.mat(np.diag(K_)).T + self.offset + tmp_)
+        tmp_ = -2*np.sum(tmp_2, axis=1, keepdims=True)  
+        distance = np.sqrt(np.mat(np.diag(K_)).T+self.offset+tmp_)
         return distance
-
+    
     def fit_predict(self, X, y=None, weight=None):
         # Perform fit on X and returns labels for X.
         self.fit(X, y, weight)
         return self.predict(X, y)
-
+        
     def decision_function(self, X):
         """Signed distance to the separating hyperplane.
         Signed distance is positive for an inlier and negative for an outlier.
@@ -326,13 +344,13 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         -------
         dec : ndarray of shape (n_samples, 1)
             Returns the decision function of the samples.
-            The anomaly score of the input samples. The lower,
+            The anomaly score of the input samples. The lower, 
             the more abnormal. Negative scores represent outliers,
             positive scores represent inliers.
-
+            
         """
-        return self.radius - self.get_distance(X)
-
+        return self.radius-self.get_distance(X)
+    
     def get_params(self, deep=True):
         """
         Get parameters for this estimator.
@@ -353,7 +371,7 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
                 deep_items = value.get_params().items()
                 out.update((key + "__" + k, val) for k, val in deep_items)
             out[key] = value
-        return out
+        return out 
 
     def set_params(self, **params):
         """
@@ -396,7 +414,7 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
             valid_params[key].set_params(**sub_params)
 
         return self
-
+ 
     def _check_X_y(self, X, y):
 
         # check for labels
@@ -404,85 +422,85 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
             y = np.ones((X.shape[0], 1))
             exist_y = False
         else:
-            exist_y = True
+            exist_y = True   
 
         # check for object type (numpy.ndarray)
         if type(X) is not np.ndarray or type(y) is not np.ndarray:
             raise SyntaxError("The type of X and y must be 'numpy.ndarray'.\n")
-
+        
         # check for data dimensionality
         if len(X.shape) != 2 or len(y.shape) != 2:
             raise SyntaxError("The X and y must be 2D.\n")
-
+          
         # check for data length
         if X.shape[0] != y.shape[0]:
-            raise SyntaxError("The length of X and y must the same.\n")
-
+            raise SyntaxError("The length of X and y must the same.\n")   
+             
         # check for label values
         tmp_ = np.unique(y)
         if np.all(tmp_ == np.array([1])) or np.all(tmp_ == np.array([-1])):
             y_type = 'single'
-
+           
         elif np.all(tmp_ == np.array([1, -1])) or np.all(tmp_ == np.array([-1, 1])):
-            y_type = 'hybrid'
-
+            y_type = 'hybrid'        
+          
         else:
-            errorText = "SVDD is only supported for one-class or binary classification. " \
+            errorText = "SVDD is only supported for one-class or binary classification. "\
                         "The label must be 1 for positive samples or -1 for negative samples.\n"
             raise SyntaxError(errorText)
-
+            
         self.classes_ = np.unique(y)
 
         return X, y, y_type, exist_y
 
     def display_fit(self):
-        # display the fitting results
+        # display the fitting results       
         print('\n')
         print('*** Fitting of the SVDD model is completed. ***\n')
-        print('running time         = %.4f seconds' % self.running_time)
-        print('kernel function      = %s' % self.kernel)
-        print('iterations           = %d' % self.n_iterations)
-        print('number of samples    = %d' % self.n_samples)
-        print('number of features   = %d' % self.n_features)
-        print('number of SVs        = %d' % self.n_support_vectors)
-        print('ratio of SVs         = %.4f %%' % (100 * self.n_support_vectors_ratio))
-        print('accuracy             = %.4f %%' % (100 * self.accuracy))
-        print('\n')
-
+        print('running time         = %.4f seconds'   % self.running_time)
+        print('kernel function      = %s'             % self.kernel)
+        print('iterations           = %d'             % self.n_iterations)
+        print('number of samples    = %d'             % self.n_samples)
+        print('number of features   = %d'             % self.n_features)
+        print('number of SVs        = %d'             % self.n_support_vectors)
+        print('ratio of SVs         = %.4f %%'        % (100*self.n_support_vectors_ratio))
+        print('accuracy             = %.4f %%'        % (100*self.accuracy))
+        print('\n')        
+        
     def display_predict(self, results):
-        # display test results
+        # display test results       
         print('\n')
         print('*** Prediction of the provided data is completed. ***\n')
-        print('running time         = %.4f seconds' % results['running_time'])
-        print('number of samples    = %d' % results['n_samples'])
-        print('number of alarm      = %d' % results['n_alarm'])
+        print('running time         = %.4f seconds'   % results['running_time'])
+        print('number of samples    = %d'             % results['n_samples'])                                                        
+        print('number of alarm      = %d'             % results['n_alarm'])  
         if results['exist_y'] == True:
-            print('accuracy             = %.4f %%' % (100 * results['accuracy']))
-        print('\n')
+            print('accuracy             = %.4f %%'        % (100*results['accuracy']))
+        print('\n')  
 
     def plot_distance(self, radius, distance):
-        """
+        """ 
         DESCRIPTION
-
+        
         Plot the curve of distance
-        ---------------------------------------------------------------
-
-        """
+        --------------------------------------------------------------- 
+        
+        """ 
 
         n = distance.shape[0]
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(1, 1, 1)
-        radius = np.ones((n, 1)) * radius
+        radius = np.ones((n, 1))*radius
 
-        ax.plot(radius,
+        ax.plot(radius, 
                 color='r',
-                linestyle='-',
+                linestyle='-', 
                 marker='None',
-                linewidth=3,
+                linewidth=3, 
                 markeredgecolor='k',
-                markerfacecolor='w',
+                markerfacecolor='w', 
                 markersize=6)
-
+        
         ax.plot(distance,
                 color='k',
                 linestyle=':',
@@ -491,13 +509,13 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
                 markeredgecolor='k',
                 markerfacecolor='C4',
                 markersize=6)
-
+        
         ax.set_xlabel('Samples')
         ax.set_ylabel('Distance')
-
-        ax.legend(["Radius", "Distance"],
-                  ncol=1, loc=0,
-                  edgecolor='black',
+        
+        ax.legend(["Radius", "Distance"], 
+                  ncol=1, loc=0, 
+                  edgecolor='black', 
                   markerscale=1, fancybox=True)
         ax.yaxis.grid()
         plt.show()

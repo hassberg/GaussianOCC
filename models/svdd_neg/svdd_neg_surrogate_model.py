@@ -3,8 +3,6 @@ from typing import Tuple
 from active_learning_ts.data_retrievement.data_retriever import DataRetriever
 from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
 import tensorflow as tf
-import numpy as np
-from sklearn.svm import OneClassSVM
 
 from models.common_resource.BaseSVDD import BaseSVDD
 
@@ -12,7 +10,7 @@ from models.common_resource.BaseSVDD import BaseSVDD
 class SVDDNegSurrogateModel(SurrogateModel):
 
     def __init__(self):
-        self.svdd_model = OneClassSVM(nu=0.05)
+        self.svdd_model = BaseSVDD(C=1, display='off')
         self.available_points = None
         self.labels = None
 
@@ -30,13 +28,24 @@ class SVDDNegSurrogateModel(SurrogateModel):
         return tf.convert_to_tensor(uncertainty)
 
     def learn(self, points: tf.Tensor, feedback: tf.Tensor):
-        indices = np.where(self.available_points == points)
-        if len(indices[0] == len(points[0])):
-            self.labels[indices[0][0]] = feedback.numpy()
-        else:
-            print("else.. append?")
+        # updates label of point
+        for point, curr_feedback in zip(points, feedback):
+            contained = False
+            for i in range(len(self.available_points)):
+                equal = True
+                for j in range(len(point)):
+                    if point[j] != self.available_points[i][j]:
+                        equal = False
+                        break
 
-        self.svdd_model = OneClassSVM(nu=0.05)
+                if equal:
+                    self.labels[i] = curr_feedback
+                    contained = True
+                    break
+
+            # TODO if point is not in set of available_points contained
+
+        self.svdd_model = BaseSVDD(C=1, display='off')
         self.svdd_model.fit(self.available_points, self.labels)
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:

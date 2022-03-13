@@ -1,9 +1,7 @@
 import os
 
-import pandas as pd
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 from active_learning_ts.experiments.experiment_runner import ExperimentRunner
-from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
 
 from _experiment_pipeline.base_blueprint import BaseBlueprint
 ## Data Source
@@ -21,7 +19,7 @@ from selection_criteria.svdd_model.decision_boundary_focused import SvddDecision
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
 experiment_repeats: int = 3
-learning_steps: int = 5
+learning_steps: int = 20
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSurrogateModel]
@@ -30,7 +28,7 @@ available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSu
 available_selection_criteria = {
     CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, VarianceBasedQuerySelection,
                                               GpDecisionBoundaryFocusedQuerySelection],
-    SVDDNegSurrogateModel: [SvddDecisionBoundaryFocusedQuerySelection, RandomOutlierSamplingSelectionCriteria]
+    SVDDNegSurrogateModel: [RandomOutlierSamplingSelectionCriteria, SvddDecisionBoundaryFocusedQuerySelection]
 }
 
 # getting available data csv files
@@ -50,7 +48,6 @@ for sm in available_surrogate_models:
             os.makedirs(output_path)
 
         for file in files:
-
             current_bp = BaseBlueprint
             current_bp.__name__ = sm.__name__ + "BP"
 
@@ -60,9 +57,6 @@ for sm in available_surrogate_models:
 
             current_bp.surrogate_model = BlueprintElement[sm]()
             current_bp.selection_criteria = BlueprintElement[sc]()
-
-            current_bp.query_optimizer = BlueprintElement[MaximumQueryOptimizer](
-                {'num_tries': len(pd.read_csv(file, header=None))})
 
             _, filename = os.path.split(file)
             logfile_name = os.path.join(output_path, ("log_" + filename.split('_')[0] + "-" + filename.split('_')[2]))
