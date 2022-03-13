@@ -7,6 +7,7 @@ from _experiment_pipeline.base_blueprint import BaseBlueprint
 ## Data Source
 from datasources.csvFileReadingDataSource import CsvFileReadingDataSource
 ## Models
+from models.constant_prior_gp_model.constant_prior_mean_surrogate_model import ConstantPriorMeanSurrogateModel
 from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surrogate_model import \
     CustomModelBasedPriorMeanSurrogateModel
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
@@ -18,16 +19,19 @@ from selection_criteria.gp_model.variance_based_query_selection import VarianceB
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
-experiment_repeats: int = 3
-learning_steps: int = 20
+experiment_repeats: int = 2
+learning_steps: int = 10
 
 ## List of surrogate models to use for evaluation
-available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSurrogateModel]
+available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSurrogateModel,
+                              ConstantPriorMeanSurrogateModel]
 
 # Dictionary containing selection criteria for each surrogate model
 available_selection_criteria = {
-    CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, VarianceBasedQuerySelection,
-                                              GpDecisionBoundaryFocusedQuerySelection],
+    CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
+    # , VarianceBasedQuerySelection],
+    ConstantPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
+    # , VarianceBasedQuerySelection],
     SVDDNegSurrogateModel: [RandomOutlierSamplingSelectionCriteria, SvddDecisionBoundaryFocusedQuerySelection]
 }
 
