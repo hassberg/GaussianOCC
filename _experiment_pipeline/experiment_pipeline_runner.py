@@ -23,8 +23,8 @@ from selection_criteria.gp_model.variance_based_query_selection import VarianceB
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
-experiment_repeats: int = 2
-learning_steps: int = 10
+experiment_repeats: int = 5
+learning_steps: int = 100
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSurrogateModel,
@@ -32,10 +32,8 @@ available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSu
 
 # Dictionary containing selection criteria for each surrogate model
 available_selection_criteria = {
-    CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
-    # , VarianceBasedQuerySelection],
-    ConstantPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
-    # , VarianceBasedQuerySelection],
+    CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection , VarianceBasedQuerySelection],
+    ConstantPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection, VarianceBasedQuerySelection],
     SVDDNegSurrogateModel: [RandomOutlierSamplingSelectionCriteria, SvddDecisionBoundaryFocusedQuerySelection]
 }
 
@@ -67,6 +65,6 @@ for sm in available_surrogate_models:
             current_bp.selection_criteria = BlueprintElement[sc]()
 
             _, filename = os.path.split(file)
-            logfile_name = os.path.join(output_path, ("log_" + filename.split('_')[0] + "-" + filename.split('_')[2]))
+            logfile_name = os.path.join(output_path, ("log_" + filename.split('_')[0] + "_" + filename.split('_')[2]))
             print("   - With data set: " + filename.split('_')[0] + "-" + filename.split('_')[2])
             ExperimentRunner(experiment_blueprints=[current_bp], file=logfile_name, log=True).run()
