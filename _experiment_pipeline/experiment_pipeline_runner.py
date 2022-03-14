@@ -1,4 +1,8 @@
 import os
+import sys
+
+tail, _ = os.path.split(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(tail)
 
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 from active_learning_ts.experiments.experiment_runner import ExperimentRunner
@@ -37,7 +41,7 @@ available_selection_criteria = {
 
 # getting available data csv files
 files = []
-root = 'data_sets'
+root = os.path.join(tail, '_experiment_pipeline', 'data_sets')
 pattern = "*.csv"
 files = [os.path.join(path, name) for path, subdirs, files in os.walk(root) for name in files]
 
