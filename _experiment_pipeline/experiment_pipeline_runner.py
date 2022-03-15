@@ -1,8 +1,10 @@
 import os
 import sys
-
 tail, _ = os.path.split(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(tail)
+
+import multiprocessing as mp
+from tqdm import tqdm
 
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 from active_learning_ts.experiments.experiment_runner import ExperimentRunner
@@ -23,8 +25,8 @@ from selection_criteria.gp_model.variance_based_query_selection import VarianceB
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
-experiment_repeats: int = 5
-learning_steps: int = 100
+experiment_repeats: int = 3
+learning_steps: int = 20
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSurrogateModel,
@@ -32,39 +34,51 @@ available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSu
 
 # Dictionary containing selection criteria for each surrogate model
 available_selection_criteria = {
-    CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection , VarianceBasedQuerySelection],
-    ConstantPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection, VarianceBasedQuerySelection],
+    CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
+    # , VarianceBasedQuerySelection],
+    ConstantPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
+    # , VarianceBasedQuerySelection],
     SVDDNegSurrogateModel: [RandomOutlierSamplingSelectionCriteria, SvddDecisionBoundaryFocusedQuerySelection]
 }
 
-# getting available data csv files
-files = []
-root = os.path.join(tail, '_experiment_pipeline', 'data_sets')
-pattern = "*.csv"
-files = [os.path.join(path, name) for path, subdirs, files in os.walk(root) for name in files]
 
-for sm in available_surrogate_models:
-    print("Testing surrogate model: " + sm.__name__)
+# function to run blueprint with parameters in parallel
+def run_experiment(arg_map):
+    current_bp = BaseBlueprint
+    current_bp.__name__ = arg_map["sm"].__name__ + "BP"
 
-    for sc in available_selection_criteria.get(sm):
-        print(" - With selection criteria: " + sc.__name__)
+    current_bp.repeat = experiment_repeats
+    current_bp.learning_steps = learning_steps
+    current_bp.data_source = BlueprintElement[CsvFileReadingDataSource]({'fileName': arg_map["file"]})
 
-        output_path = os.path.join("output", sm.__name__, sc.__name__)
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+    current_bp.surrogate_model = BlueprintElement[arg_map["sm"]]()
+    current_bp.selection_criteria = BlueprintElement[arg_map["sc"]]()
+    ExperimentRunner(experiment_blueprints=[current_bp], file=arg_map["log"], log=True).run()
 
-        for file in files:
-            current_bp = BaseBlueprint
-            current_bp.__name__ = sm.__name__ + "BP"
 
-            current_bp.repeat = experiment_repeats
-            current_bp.learning_steps = learning_steps
-            current_bp.data_source = BlueprintElement[CsvFileReadingDataSource]({'fileName': file})
+if __name__ == '__main__':
+    N = mp.cpu_count()
 
-            current_bp.surrogate_model = BlueprintElement[sm]()
-            current_bp.selection_criteria = BlueprintElement[sc]()
+    # getting available data csv files
+    files = []
+    root = os.path.join(tail, '_experiment_pipeline', 'data_sets')
+    pattern = "*.csv"
+    files = [os.path.join(path, name) for path, subdirs, files in os.walk(root) for name in files]
 
-            _, filename = os.path.split(file)
-            logfile_name = os.path.join(output_path, ("log_" + filename.split('_')[0] + "_" + filename.split('_')[2]))
-            print("   - With data set: " + filename.split('_')[0] + "-" + filename.split('_')[2])
-            ExperimentRunner(experiment_blueprints=[current_bp], file=logfile_name, log=True).run()
+    all_experiments = []
+    for sm in available_surrogate_models:
+        for sc in available_selection_criteria.get(sm):
+
+            output_path = os.path.join("output", sm.__name__, sc.__name__)
+            if not os.path.exists(output_path):
+                os.makedirs(output_path)
+
+            for file in files:
+                _, filename = os.path.split(file)
+                logfile_name = os.path.join(output_path,
+                                            ("log_" + filename.split('_')[0] + "_" + filename.split('_')[2]))
+                all_experiments.append({"sm": sm, "sc": sc, "file": file, "log": logfile_name})
+
+    with mp.Pool(processes=int(N/2)) as p: # TODO scale N correctly
+        for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
+            pass
