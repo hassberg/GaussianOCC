@@ -26,7 +26,7 @@ from selection_criteria.svdd_model.decision_boundary_focused import SvddDecision
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
 experiment_repeats: int = 3
-learning_steps: int = 20
+learning_steps: int = 30
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [CustomModelBasedPriorMeanSurrogateModel, SVDDNegSurrogateModel,
@@ -79,6 +79,6 @@ if __name__ == '__main__':
                                             ("log_" + filename.split('_')[0] + "_" + filename.split('_')[2]))
                 all_experiments.append({"sm": sm, "sc": sc, "file": file, "log": logfile_name})
 
-    with mp.Pool(processes=int(N/2)) as p: # TODO scale N correctly
+    with mp.Pool(processes=N) as p: # TODO scale N correctly
         for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
             pass

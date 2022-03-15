@@ -59,6 +59,6 @@ class BaseBlueprint(Blueprint):
 
     selection_criteria: BlueprintElement[SelectionCriteria] = None
 
-    evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[RoundCounterEvaluator](), BlueprintElement[MatthewCorrelationCoefficient]()]
+    evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[MatthewCorrelationCoefficient]()]
     knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[FullDiscreteQuerySampler]()
     knowledge_discovery_task: BlueprintElement[KnowledgeDiscoveryTask] = BlueprintElement[NoKnowledgeDiscoveryTask]()
