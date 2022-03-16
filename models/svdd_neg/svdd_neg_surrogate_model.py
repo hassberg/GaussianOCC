@@ -24,7 +24,7 @@ class SVDDNegSurrogateModel(SurrogateModel):
         self.svdd_model.fit(self.available_points, self.labels)
 
     def uncertainty(self, points: tf.Tensor) -> tf.Tensor:
-        uncertainty = self.svdd_model.score_samples(points.numpy())
+        uncertainty = self.svdd_model.get_distance(points.numpy())- self.svdd_model.radius
         return tf.convert_to_tensor(uncertainty)
 
     def learn(self, points: tf.Tensor, feedback: tf.Tensor):

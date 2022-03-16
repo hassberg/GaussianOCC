@@ -5,5 +5,5 @@ import tensorflow as tf
 class SvddDecisionBoundaryFocusedQuerySelection(SelectionCriteria):
 
     def score_queries(self, queries: tf.Tensor) -> tf.Tensor:
-        result = self.surrogate_model.query(queries)
-        return tf.math.multiply(tf.math.abs(result[1]), -1)
+        result = self.surrogate_model.uncertainty(queries)
+        return tf.math.multiply(tf.math.abs(result), -1)

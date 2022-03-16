@@ -57,4 +57,4 @@ class BananaDataSource(DataSource):
         return data_points, data_labels
 
     def possible_queries(self) -> Pool:
-        return DiscreteVectorPool(2, self.data_points, self.retrievementStrategy)
+        return DiscreteVectorPool(2, self.data_points, self.retrievement_strategy)
