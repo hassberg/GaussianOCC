@@ -8,7 +8,6 @@ from active_learning_ts.data_retrievement.interpolation_strategy import Interpol
 from active_learning_ts.data_retrievement.retrievement_strategies.exact_retrievement import ExactRetrievement
 from active_learning_ts.data_retrievement.retrievement_strategy import RetrievementStrategy
 from active_learning_ts.evaluation.evaluation_metric import EvaluationMetric
-from active_learning_ts.evaluation.evaluation_metrics.rounder_counter_evaluator import RoundCounterEvaluator
 from active_learning_ts.experiments.blueprint import Blueprint
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 from active_learning_ts.instance_properties.costs.constant_instance_cost import ConstantInstanceCost
@@ -25,24 +24,20 @@ from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
 from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
 from active_learning_ts.training.training_strategy import TrainingStrategy
 
-from datasources.csvFileReadingDataSource import CsvFileReadingDataSource
+from datasources.csv_file_reading_data_source import CsvFileReadingDataSource
+from evaluation.matthew_correlation_coefficient.mcc_train import MccTrain
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
-from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
-from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
-
-from datasources.BananaDataSource import BananaDataSource
-from evaluation.mathew_correlation_coefficient import MatthewCorrelationCoefficient
 from query_optimizer.maximum_unique_full_query_optimizer import MaximumUniqueFullQueryOptimizer
 from query_sampler.full_discrete_query_sampler import FullDiscreteQuerySampler
+from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 
 
 class TestBlueprint(Blueprint):
-
     repeat = 2
     learning_steps = 20
     num_knowledge_discovery_queries = 0
 
-    file = '_experiment_pipeline\data_sets\page-blocks\page-blocks-2_sample_1_data-points_346_inlier-fraction_0.95.csv'
+    file = '_experiment_pipeline\data_sets\page-blocks\page-blocks-1_sample_0_data-points_1000_inlier-fraction_0.95_datasample\train.csv'
     data_source: BlueprintElement[DataSource] = BlueprintElement[CsvFileReadingDataSource]({'fileName': file})
 
     retrievement_strategy: BlueprintElement[RetrievementStrategy] = BlueprintElement[ExactRetrievement]()
@@ -60,8 +55,9 @@ class TestBlueprint(Blueprint):
 
     query_optimizer: BlueprintElement[QueryOptimizer] = BlueprintElement[MaximumUniqueFullQueryOptimizer]()
 
-    selection_criteria: BlueprintElement[SelectionCriteria] = BlueprintElement[SvddDecisionBoundaryFocusedQuerySelection]()
+    selection_criteria: BlueprintElement[SelectionCriteria] = BlueprintElement[
+        SvddDecisionBoundaryFocusedQuerySelection]()
 
-    evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[MatthewCorrelationCoefficient]()]
+    evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[MccTrain]()]
     knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[FullDiscreteQuerySampler]()
     knowledge_discovery_task: BlueprintElement[KnowledgeDiscoveryTask] = BlueprintElement[NoKnowledgeDiscoveryTask]()

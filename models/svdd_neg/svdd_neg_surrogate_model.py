@@ -9,10 +9,13 @@ from models.common_resource.BaseSVDD import BaseSVDD
 
 class SVDDNegSurrogateModel(SurrogateModel):
 
-    def __init__(self):
-        self.svdd_model = BaseSVDD(C=1, display='off')
+    def __init__(self, kernel, gamma, C):
         self.available_points = None
         self.labels = None
+        self.C = C
+        self.gamma = gamma
+        self.kernel = kernel
+        self.svdd_model = BaseSVDD(C=1, display='off')
 
     def post_init(self, data_retriever: DataRetriever):
         self.query_pool = data_retriever.get_query_pool()
