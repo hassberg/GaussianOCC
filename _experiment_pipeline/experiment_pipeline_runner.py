@@ -37,7 +37,7 @@ from selection_criteria.svdd_model.decision_boundary_focused import SvddDecision
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
 experiment_repeats: int = 2
-learning_steps: int = 20
+learning_steps: int = 30
 best_k_to_score: int = 3
 
 ## List of surrogate models to use for evaluation
@@ -169,9 +169,9 @@ if __name__ == '__main__':
                 logfile_name = [output_path, filename.split('_')[0] + "_" + filename.split('_')[2]]
                 all_experiments.append({"sm": sm, "sc": sc, "file": sample, "log": logfile_name})
 
-    # with mp.Pool(processes=1) as p: # TODO scale N correctly
-    #     for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
-    #         pass
+    with mp.Pool(processes=N) as p: # TODO scale N correctly
+        for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
+            pass
 
-    for arg_map in all_experiments:
-        run_experiment(arg_map)
+    # for arg_map in all_experiments:
+    #     run_experiment(arg_map)
