@@ -27,6 +27,7 @@ from active_learning_ts.training.training_strategy import TrainingStrategy
 from datasources.csv_file_reading_data_source import CsvFileReadingDataSource
 from evaluation.matthew_correlation_coefficient.mcc_train import MccTrain
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
+from models.constant_prior_gp_model.constant_prior_mean_surrogate_model import ConstantPriorMeanSurrogateModel
 from query_optimizer.maximum_unique_full_query_optimizer import MaximumUniqueFullQueryOptimizer
 from query_sampler.full_discrete_query_sampler import FullDiscreteQuerySampler
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
@@ -37,8 +38,8 @@ class TestBlueprint(Blueprint):
     learning_steps = 20
     num_knowledge_discovery_queries = 0
 
-    file = '_experiment_pipeline\data_sets\page-blocks\page-blocks-1_sample_0_data-points_1000_inlier-fraction_0.95_datasample\train.csv'
-    data_source: BlueprintElement[DataSource] = BlueprintElement[CsvFileReadingDataSource]({'fileName': file})
+    file = '_experiment_pipeline\data_sets\ecoli\ecoli-cp_sample_0_data-points_105_inlier-fraction_0.95_datasample\\train.csv'
+    data_source: BlueprintElement[DataSource] = BlueprintElement[CsvFileReadingDataSource]({'file_name': file})
 
     retrievement_strategy: BlueprintElement[RetrievementStrategy] = BlueprintElement[ExactRetrievement]()
     augmentation_pipeline: BlueprintElement[DataPipeline] = BlueprintElement[NoAugmentation]()
@@ -47,7 +48,7 @@ class TestBlueprint(Blueprint):
     instance_level_objective: BlueprintElement[InstanceObjective] = BlueprintElement[ConstantInstanceObjective]()
     instance_cost: BlueprintElement[InstanceCost] = BlueprintElement[ConstantInstanceCost]()
 
-    surrogate_model: BlueprintElement[SurrogateModel] = BlueprintElement[SVDDNegSurrogateModel]()
+    surrogate_model: BlueprintElement[SurrogateModel] = BlueprintElement[ConstantPriorMeanSurrogateModel]()
 
     training_strategy: BlueprintElement[TrainingStrategy] = BlueprintElement[DirectTrainingStrategy]()
 

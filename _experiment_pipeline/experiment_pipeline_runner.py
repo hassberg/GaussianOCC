@@ -2,9 +2,8 @@ import os
 import sys
 
 import pandas as pd
+import scipy.spatial.distance as distance
 from sklearn.model_selection import PredefinedSplit, GridSearchCV
-
-from datasources.parametrized_data_source import ParametrizedDataSource
 
 from evaluation.matthew_correlation_coefficient.mcc_eval import MccEval
 from evaluation.matthew_correlation_coefficient.mcc_test import MccTest
@@ -25,37 +24,81 @@ from active_learning_ts.experiments.experiment_runner import ExperimentRunner
 from _experiment_pipeline.base_blueprint import BaseBlueprint
 ## Data Source
 from datasources.csv_file_reading_data_source import CsvFileReadingDataSource
+from datasources.parametrized_data_source import ParametrizedDataSource
 ## Models
 from models.constant_prior_gp_model.constant_prior_mean_surrogate_model import ConstantPriorMeanSurrogateModel
-from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surrogate_model import \
-    CustomModelBasedPriorMeanSurrogateModel
+from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surrogate_model import CustomModelBasedPriorMeanSurrogateModel
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
-from selection_criteria.gp_model.decision_boundary_focused_query_selection import \
-    GpDecisionBoundaryFocusedQuerySelection
 ## Selection criteria
+from selection_criteria.gp_model.decision_boundary_focused_query_selection import GpDecisionBoundaryFocusedQuerySelection
 from selection_criteria.gp_model.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
 from selection_criteria.gp_model.variance_based_query_selection import VarianceBasedQuerySelection
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
-experiment_repeats: int = 3
-learning_steps: int = 3
+experiment_repeats: int = 2
+learning_steps: int = 20
 best_k_to_score: int = 3
 
 ## List of surrogate models to use for evaluation
-available_surrogate_models = [  # CustomModelBasedPriorMeanSurrogateModel,
+available_surrogate_models = [
+    CustomModelBasedPriorMeanSurrogateModel,
     SVDDNegSurrogateModel,
-    #                              ConstantPriorMeanSurrogateModel,
+    ConstantPriorMeanSurrogateModel,
 ]
 
 # Dictionary containing selection criteria for each surrogate model
 available_selection_criteria = {
-    CustomModelBasedPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
-    # , VarianceBasedQuerySelection],
-    ConstantPriorMeanSurrogateModel: [UncertaintyBasedQuerySelection, GpDecisionBoundaryFocusedQuerySelection],
-    # , VarianceBasedQuerySelection],
-    SVDDNegSurrogateModel: [RandomOutlierSamplingSelectionCriteria]  # , SvddDecisionBoundaryFocusedQuerySelection]
+    CustomModelBasedPriorMeanSurrogateModel: [
+        UncertaintyBasedQuerySelection,
+        GpDecisionBoundaryFocusedQuerySelection,
+        VarianceBasedQuerySelection,
+    ],
+    ConstantPriorMeanSurrogateModel: [
+        UncertaintyBasedQuerySelection,
+        GpDecisionBoundaryFocusedQuerySelection,
+        VarianceBasedQuerySelection,
+    ],
+    SVDDNegSurrogateModel: [
+        RandomOutlierSamplingSelectionCriteria,
+        SvddDecisionBoundaryFocusedQuerySelection,
+    ]
 }
+
+
+def get_parameter_grid(model, data_shape, points, outlier_fraction):
+    if model == SVDDNegSurrogateModel:
+        tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
+        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=20)))
+        parameter = {
+            'kernel': ['rbf'],
+            'C': [tax_cost_estimation],
+            'gamma': gamma_range
+        }
+        return parameter
+    elif model == ConstantPriorMeanSurrogateModel:
+        dist = distance.pdist(points)
+        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=10))
+
+        parameter = {
+            'kernel': ['rbf'],
+            'lengthscale': lengthscale_range,
+        }
+        return parameter
+    elif model == CustomModelBasedPriorMeanSurrogateModel:
+        dist = distance.pdist(points)
+        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=5))
+        tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
+        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=5)))
+        parameter = {
+            'kernel': ['rbf'],
+            'C': [tax_cost_estimation],
+            'gamma': gamma_range,
+            'lengthscale': lengthscale_range,
+        }
+        return parameter
+    else:
+        raise Exception('parameter for model not defined')
 
 
 # function to run blueprint with parameters in parallel
@@ -72,13 +115,11 @@ def run_experiment(arg_map):
     arg_map["learning_steps"] = learning_steps
     base_estimator = GridSearchBlueprintBaseEstimator(blueprint_parameter=arg_map)
 
-    parameter = {
-        "kernel": ['rbf'],
-        "gamma": [0.5, 1, 2],
-        "C": [0.5, 1, 2],
-    }
-    clf = GridSearchCV(estimator=base_estimator, param_grid=parameter, cv=ps, refit=False)
+    clf = GridSearchCV(estimator=base_estimator, param_grid=get_parameter_grid(arg_map['sm'], train_set.shape, train_set, 0.05), cv=ps, refit=False)
     fit = clf.fit(data, targets)
+
+    if True in np.isnan(fit.cv_results_['params']):
+        raise Exception('parameter may not be nan: ' + arg_map['sm'] + " - " + arg_map['file'])
 
     results = list(map(list, zip(fit.cv_results_['mean_test_score'], fit.cv_results_['params'])))
 
@@ -91,8 +132,7 @@ def run_experiment(arg_map):
 
         current_bp.repeat = experiment_repeats
         current_bp.learning_steps = learning_steps
-        current_bp.data_source = BlueprintElement[ParametrizedDataSource](
-            {'data_points': train_set[:, :-1], 'values': train_set[:, -1]})
+        current_bp.data_source = BlueprintElement[ParametrizedDataSource]({'data_points': train_set[:, :-1], 'values': train_set[:, -1]})
 
         current_bp.surrogate_model = BlueprintElement[arg_map["sm"]](sm_args)
         current_bp.selection_criteria = BlueprintElement[arg_map["sc"]]()

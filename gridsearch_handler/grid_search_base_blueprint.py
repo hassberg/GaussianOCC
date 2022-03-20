@@ -37,7 +37,7 @@ class GridSearchBaseBlueprint(Blueprint):
     Following field MUST be in the blueprint file, with the same names
     """
     repeat = 1
-    learning_steps = 2
+    learning_steps = 5
     num_knowledge_discovery_queries = 0
 
     data_source: BlueprintElement[DataSource] = None

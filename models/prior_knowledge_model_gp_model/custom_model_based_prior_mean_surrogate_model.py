@@ -11,11 +11,12 @@ from gpytorch.likelihoods import GaussianLikelihood
 
 class CustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
 
-    def __init__(self):
+    def __init__(self, **params):
         self.training_points = None
         self.training_values = None
         self.query_pool = None
         self.gaussian_process_model = None
+        self.model_parameter = params
 
     def post_init(self, data_retriever):
         self.query_pool = data_retriever.get_query_pool()
@@ -25,7 +26,7 @@ class CustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
         initial_sample = torch.empty(1, dtype=torch.double)
         self.gaussian_process_model = CustomModelBasedGaussianProcess(self.query_pool.get_all_elements(),
                                                                       initial_data_point, initial_sample,
-                                                                      GaussianLikelihood())
+                                                                      GaussianLikelihood(), self.model_parameter)
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
         if self.training_points is None:

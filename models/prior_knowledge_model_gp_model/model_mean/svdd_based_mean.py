@@ -7,9 +7,9 @@ import numpy as np
 
 
 class SvddBasedMean(Mean):
-    def __init__(self, available_points: tf.Tensor):
+    def __init__(self, available_points: tf.Tensor, params):
         super(SvddBasedMean, self).__init__()
-        self.model = BaseSVDD(C=1, display='off')
+        self.model = BaseSVDD(C=params['C'], kernel=params['kernel'], gamma= params['gamma'],  display='off')
         self.model.fit(available_points.numpy())
         self.center = self.model.center
         self.radius = self.model.radius

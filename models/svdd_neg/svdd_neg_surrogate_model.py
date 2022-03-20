@@ -15,7 +15,7 @@ class SVDDNegSurrogateModel(SurrogateModel):
         self.C = C
         self.gamma = gamma
         self.kernel = kernel
-        self.svdd_model = BaseSVDD(C=1, display='off')
+        self.svdd_model = BaseSVDD(C=self.C, kernel=self.kernel, gamma= self.gamma, display='off')
 
     def post_init(self, data_retriever: DataRetriever):
         self.query_pool = data_retriever.get_query_pool()
@@ -48,7 +48,7 @@ class SVDDNegSurrogateModel(SurrogateModel):
 
             # TODO if point is not in set of available_points contained
 
-        self.svdd_model = BaseSVDD(C=1, display='off')
+        self.svdd_model = BaseSVDD(C=self.C, kernel=self.kernel, gamma= self.gamma, display='off')
         self.svdd_model.fit(self.available_points, self.labels)
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
