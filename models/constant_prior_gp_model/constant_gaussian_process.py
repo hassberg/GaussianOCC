@@ -25,14 +25,14 @@ class ConstantGaussianProcess(ExactGP):
         self.set_train_data(inputs=torch.as_tensor(points.numpy()), targets=torch.as_tensor(values.numpy()),
                             strict=False)
 
-        # optimizer = Adam(self.parameters())
-        # mll = ExactMarginalLogLikelihood(self.likelihood, self)
-        #
-        # for i in range(20):
-        #     optimizer.zero_grad()
-        #     output = self(torch.as_tensor(points.numpy()))
-        #     loss = -mll(output, torch.as_tensor(values.numpy(), dtype=torch.double))
-        #     loss = loss.sum()
-        #     loss.backward()
-        #
-        #     optimizer.step()
+        optimizer = Adam(self.parameters())
+        mll = ExactMarginalLogLikelihood(self.likelihood, self)
+
+        for i in range(20):
+            optimizer.zero_grad()
+            output = self(torch.as_tensor(points.numpy()))
+            loss = -mll(output, torch.as_tensor(values.numpy(), dtype=torch.double))
+            loss = loss.sum()
+            loss.backward()
+
+            optimizer.step()
