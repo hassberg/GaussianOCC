@@ -2,6 +2,9 @@ import math
 import os
 import sys
 
+tail, _ = os.path.split(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(tail)
+
 import pandas as pd
 import scipy.spatial.distance as distance
 from evaluation.sm_lengthscale_logger import LengthscaleLogger
@@ -19,10 +22,6 @@ from evaluation.matthew_correlation_coefficient.svdd_mcc import SvddMcc
 from evaluation.sm_parameter_logger import SmParameterLogger
 from gridsearch_handler.grid_search_blueprint_base_estimator import GridSearchBlueprintBaseEstimator
 from gridsearch_handler.paramaeter_gridsearch import get_best_parameter
-
-tail, _ = os.path.split(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(tail)
-
 os.environ.update(
     OMP_NUM_THREADS='1',
     OPENBLAS_NUM_THREADS='1',
