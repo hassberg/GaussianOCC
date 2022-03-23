@@ -24,9 +24,9 @@ from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
-    gamma_range_numbers = 5
-    lengthscale_numbers = 5
-    combined_numbers = 3
+    gamma_range_numbers = 10
+    lengthscale_numbers = 10
+    combined_numbers = 5
 
     if model == SVDDNegSurrogateModel:
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
@@ -125,7 +125,7 @@ def get_best_parameter(arg_map):
     indices = np.append(np.full((len(train_set)), -1, dtype=int), np.full((len(test_set) + len(pseudo_data)), 0, dtype=int))
     ps = PredefinedSplit(indices)
 
-    arg_map["learning_steps"] = 3
+    arg_map["learning_steps"] = 20
     base_estimator_cycle = GridSearchBlueprintBaseEstimator(blueprint_parameter=arg_map, learning_cycle_evaluation=True)
     grid_search_cycle = GridSearchCV(estimator=base_estimator_cycle, param_grid=get_parameter_grid(arg_map['sm'], train_set.shape, train_set, 0.05), cv=ps, refit=False)
     cycle_fit = grid_search_cycle.fit(data, targets)
