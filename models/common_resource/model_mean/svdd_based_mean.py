@@ -24,7 +24,12 @@ class SvddBasedMean(Mean):
 
     def forward(self, x):
         # distances = np.array(self.model.get_distance(x)).flatten()
-        scores = self.model.predict(x.numpy())
+        try:
+            scores = self.model.predict(x.numpy())
+        except ValueError as e:
+            z = e
+            print("Value error for: " + x)
+
         # for dist in distances:
         #     if dist < self.radius:
         #         if dist < self.avg_inlier_dist:
