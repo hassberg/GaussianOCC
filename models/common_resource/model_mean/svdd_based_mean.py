@@ -29,6 +29,7 @@ class SvddBasedMean(Mean):
         except ValueError as e:
             z = e
             print("Value error for: " + str(x))
+            scores = np.zeros(len(x))
 
         # for dist in distances:
         #     if dist < self.radius:
