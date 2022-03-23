@@ -28,7 +28,7 @@ class SvddBasedMean(Mean):
             scores = self.model.predict(x.numpy())
         except ValueError as e:
             z = e
-            print("Value error for: " + x)
+            print("Value error for: " + str(x))
 
         # for dist in distances:
         #     if dist < self.radius:
