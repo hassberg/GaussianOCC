@@ -150,9 +150,9 @@ if __name__ == '__main__':
     datasamples = list(filter(lambda x: x.endswith(pattern), [path for path, _, _ in os.walk(root)]))
 
     all_experiments = []
-    for sample in datasamples:
-        for sm in available_surrogate_models:
-            for sc in available_selection_criteria.get(sm):
+    for sm in available_surrogate_models:
+        for sc in available_selection_criteria.get(sm):
+            for sample in datasamples:
 
                 output_path = os.path.join("output", sm.__name__, sc.__name__)
                 if not os.path.exists(output_path):
