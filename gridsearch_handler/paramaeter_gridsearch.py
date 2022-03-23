@@ -25,7 +25,7 @@ from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
     if model == SVDDNegSurrogateModel:
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
-        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=30)))
+        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=20)))
         parameter = {
             'kernel': ['rbf'],
             'C': [tax_cost_estimation],
@@ -34,7 +34,7 @@ def get_parameter_grid(model, data_shape, points, outlier_fraction):
         return parameter
     elif model == ConstantPriorMeanSurrogateModel:
         dist = distance.pdist(points)
-        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=5))
+        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=20))
         parameter = {
             'kernel': ['rbf'],
             'lengthscale': lengthscale_range,
@@ -120,7 +120,7 @@ def get_best_parameter(arg_map):
     indices = np.append(np.full((len(train_set)), -1, dtype=int), np.full((len(test_set) + len(pseudo_data)), 0, dtype=int))
     ps = PredefinedSplit(indices)
 
-    arg_map["learning_steps"] = 30
+    arg_map["learning_steps"] = 2
     base_estimator_cycle = GridSearchBlueprintBaseEstimator(blueprint_parameter=arg_map, learning_cycle_evaluation=True)
     grid_search_cycle = GridSearchCV(estimator=base_estimator_cycle, param_grid=get_parameter_grid(arg_map['sm'], train_set.shape, train_set, 0.05), cv=ps, refit=False)
     cycle_fit = grid_search_cycle.fit(data, targets)
