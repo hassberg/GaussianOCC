@@ -14,8 +14,8 @@ class MccTest(EvaluationMetric):
     """
 
     def __init__(self, eval_data=None):
-        self.all_queries = tf.convert_to_tensor(eval_data[:,:-1])
-        self.ground_truth = tf.convert_to_tensor(eval_data[:,-1])
+        self.all_queries = tf.convert_to_tensor(eval_data[:,:-1], dtype=tf.float64)
+        self.ground_truth = tf.convert_to_tensor(eval_data[:,-1], dtype=tf.float64)
         self.surrogate_model: SurrogateModel = None
         self.iteration_scoring = []
         self.end_experiment = None
