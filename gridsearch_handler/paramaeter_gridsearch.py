@@ -42,9 +42,9 @@ def get_parameter_grid(model, data_shape, points, outlier_fraction):
         return parameter
     elif model == CustomModelBasedPriorMeanSurrogateModel:
         dist = distance.pdist(points)
-        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=20))
+        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=8))
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
-        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=20)))
+        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=8)))
         parameter = {
             'kernel': ['rbf'],
             'C': [tax_cost_estimation],
