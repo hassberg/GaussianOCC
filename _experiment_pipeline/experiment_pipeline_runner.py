@@ -163,9 +163,9 @@ if __name__ == '__main__':
                 logfile_name = [output_path, filename.split('_')[0] + "_" + filename.split('_')[2]]
                 all_experiments.append({"sm": sm, "sc": sc, "file": sample, "log": logfile_name})
 
-    # with mp.Pool(processes=N) as p:  # TODO scale N correctly
-    #     for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
-    #         pass
-
-    for arg_map in all_experiments:
-        run_experiment(arg_map)
+    with mp.Pool(processes=N) as p:  # TODO scale N correctly
+        for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
+            pass
+    #
+    # for arg_map in all_experiments:
+    #     run_experiment(arg_map)
