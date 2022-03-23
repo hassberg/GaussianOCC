@@ -24,9 +24,9 @@ from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
-    gamma_range_numbers = 10
-    lengthscale_numbers = 10
-    combined_numbers = 5
+    gamma_range_numbers = 20
+    lengthscale_numbers = 20
+    combined_numbers = 7
 
     if model == SVDDNegSurrogateModel:
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
