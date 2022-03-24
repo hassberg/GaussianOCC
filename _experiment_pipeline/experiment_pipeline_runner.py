@@ -1,4 +1,3 @@
-import math
 import os
 import sys
 
@@ -6,21 +5,16 @@ tail, _ = os.path.split(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(tail)
 
 import pandas as pd
-import scipy.spatial.distance as distance
 from evaluation.sm_lengthscale_logger import LengthscaleLogger
 from evaluation.sm_noise_logger import NoiseLogger
 from models.vanishing_self_training_prior_knowledge_model_gp_model.vanishing_self_training_custom_model_based_prior_mean_surrogate_model import \
     VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel
-from sklearn.model_selection import PredefinedSplit, GridSearchCV
-from sklearn.neighbors import KDTree
-from sklearn.preprocessing import normalize
 
 from evaluation.matthew_correlation_coefficient.mcc_eval import MccEval
 from evaluation.matthew_correlation_coefficient.mcc_test import MccTest
 from evaluation.matthew_correlation_coefficient.mcc_train import MccTrain
-from evaluation.matthew_correlation_coefficient.svdd_mcc import SvddMcc
 from evaluation.sm_parameter_logger import SmParameterLogger
-from gridsearch_handler.grid_search_blueprint_base_estimator import GridSearchBlueprintBaseEstimator
+from evaluation.sm_vanishing_factor_logger import VanishingLogger
 from gridsearch_handler.paramaeter_gridsearch import get_best_parameter
 os.environ.update(
     OMP_NUM_THREADS='1',
@@ -30,7 +24,6 @@ os.environ.update(
 )
 
 import multiprocessing as mp
-import numpy as np
 from tqdm import tqdm
 
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
@@ -38,7 +31,6 @@ from active_learning_ts.experiments.experiment_runner import ExperimentRunner
 
 from _experiment_pipeline.base_blueprint import BaseBlueprint
 ## Data Source
-from datasources.csv_file_reading_data_source import CsvFileReadingDataSource
 from datasources.parametrized_data_source import ParametrizedDataSource
 ## Models
 from models.constant_prior_gp_model.constant_prior_mean_surrogate_model import ConstantPriorMeanSurrogateModel
@@ -48,13 +40,12 @@ from models.self_training_prior_knowledge_model_gp_model.self_training_custom_mo
 ## Selection criteria
 from selection_criteria.gp_model.decision_boundary_focused_query_selection import GpDecisionBoundaryFocusedQuerySelection
 from selection_criteria.gp_model.uncertainty_based_query_selection import UncertaintyBasedQuerySelection
-from selection_criteria.gp_model.variance_based_query_selection import VarianceBasedQuerySelection
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
 experiment_repeats: int = 3
-learning_steps: int = 20
-best_k_to_score: int = 3
+learning_steps: int = 50
+best_k_to_score: int = 4
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [
@@ -67,8 +58,14 @@ available_surrogate_models = [
 
 gp_models = [
     CustomModelBasedPriorMeanSurrogateModel,
+]
+
+ls_learning_gp = [
     SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
     ConstantPriorMeanSurrogateModel,
+]
+
+vanishing_model = [
     VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel,
 ]
 
@@ -123,9 +120,25 @@ def run_experiment(arg_map):
                 BlueprintElement[MccTrain](),
                 BlueprintElement[MccTest]({'eval_data': test_set}),
                 BlueprintElement[MccEval]({'eval_data': eval_set}),
-                # BlueprintElement[SvddMcc](),
-                # BlueprintElement[LengthscaleLogger](),
-                # BlueprintElement[NoiseLogger](),
+                BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
+            ]
+        elif arg_map["sm"] in ls_learning_gp:
+            current_bp.evaluation_metrics = [
+                BlueprintElement[MccTrain](),
+                BlueprintElement[MccTest]({'eval_data': test_set}),
+                BlueprintElement[MccEval]({'eval_data': eval_set}),
+                BlueprintElement[LengthscaleLogger](),
+                BlueprintElement[NoiseLogger](),
+                BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
+            ]
+        elif arg_map["sm"] in vanishing_model:
+            current_bp.evaluation_metrics = [
+                BlueprintElement[MccTrain](),
+                BlueprintElement[MccTest]({'eval_data': test_set}),
+                BlueprintElement[MccEval]({'eval_data': eval_set}),
+                BlueprintElement[LengthscaleLogger](),
+                BlueprintElement[VanishingLogger](),
+                BlueprintElement[NoiseLogger](),
                 BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
             ]
         else:
@@ -133,7 +146,6 @@ def run_experiment(arg_map):
                 BlueprintElement[MccTrain](),
                 BlueprintElement[MccTest]({'eval_data': test_set}),
                 BlueprintElement[MccEval]({'eval_data': eval_set}),
-                # BlueprintElement[SvddMcc](),
                 BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
             ]
 
@@ -163,7 +175,7 @@ if __name__ == '__main__':
                 logfile_name = [output_path, filename.split('_')[0] + "_" + filename.split('_')[2]]
                 all_experiments.append({"sm": sm, "sc": sc, "file": sample, "log": logfile_name})
 
-    with mp.Pool(processes=N) as p:  # TODO scale N correctly
+    with mp.Pool(processes=N) as p:
         for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
             pass
     #

@@ -21,12 +21,14 @@ from models.constant_prior_gp_model.constant_prior_mean_surrogate_model import C
 from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surrogate_model import CustomModelBasedPriorMeanSurrogateModel
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
+gamma_range_numbers = 20
+lengthscale_numbers = 20
+combined_numbers = 8
+learning_steps = 50
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
-    gamma_range_numbers = 20
-    lengthscale_numbers = 20
-    combined_numbers = 7
+    # TODO adjust these parameter for grid creation
 
     if model == SVDDNegSurrogateModel:
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
@@ -125,7 +127,7 @@ def get_best_parameter(arg_map):
     indices = np.append(np.full((len(train_set)), -1, dtype=int), np.full((len(test_set) + len(pseudo_data)), 0, dtype=int))
     ps = PredefinedSplit(indices)
 
-    arg_map["learning_steps"] = 20
+    arg_map["learning_steps"] = learning_steps
     base_estimator_cycle = GridSearchBlueprintBaseEstimator(blueprint_parameter=arg_map, learning_cycle_evaluation=True)
     grid_search_cycle = GridSearchCV(estimator=base_estimator_cycle, param_grid=get_parameter_grid(arg_map['sm'], train_set.shape, train_set, 0.05), cv=ps, refit=False)
     cycle_fit = grid_search_cycle.fit(data, targets)
