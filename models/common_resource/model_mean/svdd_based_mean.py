@@ -10,7 +10,7 @@ class SvddBasedMean(Mean):
     def __init__(self, available_points: tf.Tensor, params):
         super(SvddBasedMean, self).__init__()
 
-        self.model = BaseSVDD(C=params['C'], kernel=params['kernel'], gamma=params['gamma'])
+        self.model = BaseSVDD(C=params['C'], kernel=params['kernel'], gamma=params['gamma'], display='off')
         self.model.fit(available_points.numpy())
 
     def forward(self, x):
