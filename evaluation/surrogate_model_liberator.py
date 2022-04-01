@@ -1,7 +1,7 @@
 from active_learning_ts.evaluation.evaluation_metric import EvaluationMetric
 from active_learning_ts.experiments.blueprint import Blueprint
 from active_learning_ts.logging.data_blackboard import Blackboard
-from gridsearch_handler.surrogate_receiver import SurrogateReceiver
+from gridsearch.surrogate_receiver import SurrogateReceiver
 
 
 class SurrogateModelLiberator(EvaluationMetric):
