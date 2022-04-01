@@ -5,7 +5,7 @@ from active_learning_ts.data_retrievement.data_source import DataSource
 from active_learning_ts.data_retrievement.pools.discrete_vector_pool import DiscreteVectorPool, Pool
 
 
-class ParametrizedDataSource(DataSource):
+class ParametrizedDiscreteDataSource(DataSource):
 
     def __init__(self, data_points, values):
         self.data_points = tf.convert_to_tensor(data_points, dtype=tf.float64)

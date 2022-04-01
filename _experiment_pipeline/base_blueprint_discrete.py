@@ -30,7 +30,7 @@ from query_optimizer.maximum_unique_full_query_optimizer import MaximumUniqueFul
 from query_sampler.full_discrete_query_sampler import FullDiscreteQuerySampler
 
 
-class BaseBlueprint(Blueprint):
+class DiscreteBaseBlueprint(Blueprint):
     """
     A blueprint is created in order to set up an experiment.
 

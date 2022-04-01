@@ -270,8 +270,8 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         self.n_support_vectors = self.support_vector_indices.shape[0]
         self.n_support_vectors_ratio = self.n_support_vectors/self.n_samples
 
-        if self.n_support_vectors_ratio > 0.5:
-            warnings.warn("The fitted SVDD model may be overfitting.\n")
+        # if self.n_support_vectors_ratio > 0.5:
+        #     warnings.warn("The fitted SVDD model may be overfitting.\n")
 
         # offset, center, radius
         tmp_5 = np.dot(np.ones((self.n_samples, 1)), self.alpha.T)

@@ -11,7 +11,7 @@ class SvddBasedMean(Mean):
         super(SvddBasedMean, self).__init__()
 
         self.model = BaseSVDD(C=params['C'], kernel=params['kernel'], gamma=params['gamma'], display='off')
-        self.model.fit(available_points.numpy())
+        self.model.fit(available_points)
 
     def forward(self, x):
         try:

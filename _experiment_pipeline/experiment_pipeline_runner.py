@@ -2,7 +2,7 @@ import os
 import sys
 
 from _experiment_pipeline.dataset_reader import get_data_samples_dictionary
-from _experiment_pipeline.discrete_experiment_run import run_discrete_experiment
+from _experiment_pipeline.single_experiment_run import run_single_experiment
 
 tail, _ = os.path.split(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(tail)
@@ -37,10 +37,10 @@ best_k_to_score: int = 1
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [
     CustomModelBasedPriorMeanSurrogateModel,
-    # SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
-    # VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel,
-    # SVDDNegSurrogateModel,
-    # ConstantPriorMeanSurrogateModel,
+    SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
+    VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel,
+    SVDDNegSurrogateModel,
+    ConstantPriorMeanSurrogateModel,
 ]
 
 
@@ -48,34 +48,33 @@ available_surrogate_models = [
 available_selection_criteria = {
     CustomModelBasedPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        GpDecisionBoundaryFocusedQuerySelection,
+        # GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     SelfTrainingCustomModelBasedPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        GpDecisionBoundaryFocusedQuerySelection,
+        # GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        GpDecisionBoundaryFocusedQuerySelection,
+        # GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     ConstantPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        GpDecisionBoundaryFocusedQuerySelection,
+        # GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     SVDDNegSurrogateModel: [
         RandomOutlierSamplingSelectionCriteria,
-        SvddDecisionBoundaryFocusedQuerySelection,
+        # SvddDecisionBoundaryFocusedQuerySelection,
     ]
 }
 
 
 def run_experiment(arg_map):
-    if arg_map["sampling_mode"] == "discrete":
-        run_discrete_experiment(arg_map=arg_map, best_k=best_k_to_score, repeats=experiment_repeats, learning_steps=learning_steps)
+    run_single_experiment(arg_map=arg_map, best_k=best_k_to_score, repeats=experiment_repeats, learning_steps=learning_steps)
 
 
 if __name__ == '__main__':
@@ -95,7 +94,7 @@ if __name__ == '__main__':
 
                 all_experiments.append({"sm": sm, "sc": sc, "sampling_mode": sample_mode, "data_samples": sampels, "output_path": output_path})
 
-    # with mp.Pool(processes=N) as p:
+    # with mp.Pool(processes=5) as p:
     #     for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
     #         pass
 

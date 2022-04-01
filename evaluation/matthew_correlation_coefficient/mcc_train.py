@@ -26,7 +26,9 @@ class MccTrain(EvaluationMetric):
         if blueprint.data_source.possible_queries().is_discrete():
             self.all_queries = blueprint.data_source.possible_queries().get_all_elements()
             self.ground_truth = blueprint.data_source.query(tf.convert_to_tensor(range(len(self.all_queries))))[1]
-
+        else:
+            self.all_queries = tf.convert_to_tensor(self.surrogate_model.model_parameter["init_points"])
+            self.ground_truth = tf.convert_to_tensor(self.surrogate_model.model_parameter["ground_truth"])
         self.append_round_scoring()
 
     def eval(self):

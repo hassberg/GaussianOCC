@@ -127,7 +127,8 @@ def get_best_parameter(arg_map):
     ps = PredefinedSplit(indices)
 
     arg_map["learning_steps"] = learning_steps
-    base_estimator_cycle = GridSearchBlueprintBaseEstimator(blueprint_parameter=arg_map, learning_cycle_evaluation=True)
+    base_estimator_cycle = GridSearchBlueprintBaseEstimator(blueprint_parameter=arg_map)
+
     grid_search_cycle = GridSearchCV(estimator=base_estimator_cycle, param_grid=get_parameter_grid(arg_map['sm'], train_set.shape, train_set, 0.05), cv=ps, refit=False)
     cycle_fit = grid_search_cycle.fit(data, targets)
     cycle_results = list(map(list, zip(cycle_fit.cv_results_['mean_test_score'], cycle_fit.cv_results_['params'])))

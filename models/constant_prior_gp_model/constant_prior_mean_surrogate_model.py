@@ -5,7 +5,7 @@ import torch
 from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
 from models.constant_prior_gp_model.constant_gaussian_process import ConstantGaussianProcess
 
-from gpytorch.likelihoods import GaussianLikelihood, FixedNoiseGaussianLikelihood
+from gpytorch.likelihoods import GaussianLikelihood
 
 
 class ConstantPriorMeanSurrogateModel(SurrogateModel):
@@ -21,11 +21,12 @@ class ConstantPriorMeanSurrogateModel(SurrogateModel):
         self.query_pool = data_retriever.get_query_pool()
         self.point_shape = data_retriever.point_shape
         self.value_shape = data_retriever.value_shape
-        initial_data_point = torch.empty(1, (len(self.query_pool.get_all_elements()[0])), dtype=torch.double)
-        initial_sample = torch.empty(1, dtype=torch.double)
+        initial_data_point = torch.zeros(1, (len(self.model_parameter["init_points"][0])), dtype=torch.double)
+        initial_sample = torch.zeros(1, dtype=torch.double)
         self.gaussian_process_model = ConstantGaussianProcess(initial_data_point, initial_sample, GaussianLikelihood(), self.model_parameter)
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
+        points = tf.cast(points, tf.float64)
         if self.training_points is None:
             self.training_points = points
             self.training_values = values
@@ -38,11 +39,19 @@ class ConstantPriorMeanSurrogateModel(SurrogateModel):
         self.gaussian_process_model.eval()
 
     def uncertainty(self, points: tf.Tensor) -> tf.Tensor:
+        if points.dtype is not tf.float64:
+            points = tf.cast(points, tf.float64)
+
         prediction = self.gaussian_process_model.likelihood(
             self.gaussian_process_model(torch.as_tensor(points.numpy())))
+
         return prediction.stddev.detach()
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+        if points.dtype is not tf.float64:
+            points = tf.cast(points, tf.float64)
+
         prediction = self.gaussian_process_model.likelihood(
             self.gaussian_process_model(torch.as_tensor(points.numpy())))
+
         return points, prediction.mean.detach()
