@@ -1,12 +1,11 @@
 import os
 import sys
 
-from _experiment_pipeline.dataset_reader import get_data_samples_dictionary
-from _experiment_pipeline.single_experiment_run import run_single_experiment
-
 tail, _ = os.path.split(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(tail)
 
+from _experiment_pipeline.dataset_reader import get_data_samples_dictionary
+from _experiment_pipeline.single_experiment_run import run_single_experiment
 
 os.environ.update(
     OMP_NUM_THREADS='1',
@@ -42,7 +41,6 @@ available_surrogate_models = [
     SVDDNegSurrogateModel,
     ConstantPriorMeanSurrogateModel,
 ]
-
 
 # Dictionary containing selection criteria for each surrogate model
 available_selection_criteria = {
