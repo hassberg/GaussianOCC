@@ -80,7 +80,6 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
             train_set = pd.read_csv(os.path.join(data_sample, "train.csv")).values
             eval_set = pd.read_csv(os.path.join(data_sample, "test.csv")).values
 
-            # loop over samples
             sm_args = dict(fitting_results[i][1])
             sm_args["sampling_mode"] = arg_map["sampling_mode"]
             sm_args["init_points"] = train_set[:,:-1]
