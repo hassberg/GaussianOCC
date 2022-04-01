@@ -48,27 +48,27 @@ available_surrogate_models = [
 available_selection_criteria = {
     CustomModelBasedPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        # GpDecisionBoundaryFocusedQuerySelection,
+        GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     SelfTrainingCustomModelBasedPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        # GpDecisionBoundaryFocusedQuerySelection,
+        GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        # GpDecisionBoundaryFocusedQuerySelection,
+        GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     ConstantPriorMeanSurrogateModel: [
         UncertaintyBasedQuerySelection,
-        # GpDecisionBoundaryFocusedQuerySelection,
+        GpDecisionBoundaryFocusedQuerySelection,
         # VarianceBasedQuerySelection,
     ],
     SVDDNegSurrogateModel: [
         RandomOutlierSamplingSelectionCriteria,
-        # SvddDecisionBoundaryFocusedQuerySelection,
+        SvddDecisionBoundaryFocusedQuerySelection,
     ]
 }
 
@@ -94,9 +94,9 @@ if __name__ == '__main__':
 
                 all_experiments.append({"sm": sm, "sc": sc, "sampling_mode": sample_mode, "data_samples": sampels, "output_path": output_path})
 
-    # with mp.Pool(processes=5) as p:
-    #     for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
-    #         pass
-
-    for arg_map in all_experiments:
-        run_experiment(arg_map)
+    with mp.Pool(processes=5) as p:
+        for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
+            pass
+    #
+    # for arg_map in all_experiments:
+    #     run_experiment(arg_map)
