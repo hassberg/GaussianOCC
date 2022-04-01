@@ -31,8 +31,8 @@ from selection_criteria.svdd_model.decision_boundary_focused import SvddDecision
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
 experiment_repeats: int = 3
-learning_steps: int = 2
-best_k_to_score: int = 1
+learning_steps: int = 40
+best_k_to_score: int = 3
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
                 all_experiments.append({"sm": sm, "sc": sc, "sampling_mode": sample_mode, "data_samples": sampels, "output_path": output_path})
 
-    with mp.Pool(processes=5) as p:
+    with mp.Pool(processes=N) as p:
         for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
             pass
     #

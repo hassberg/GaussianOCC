@@ -9,6 +9,7 @@ from _experiment_pipeline.base_blueprint_discrete import DiscreteBaseBlueprint
 from datasources.parametrized_continuous_data_source import ParametrizedContinuousDataSource
 from datasources.parametrized_discrete_data_source import ParametrizedDiscreteDataSource
 from evaluation.matthew_correlation_coefficient.mcc_eval import MccEval
+from evaluation.matthew_correlation_coefficient.mcc_know_train import MccKnownTrain
 from evaluation.matthew_correlation_coefficient.mcc_train import MccTrain
 from evaluation.sm_lengthscale_logger import LengthscaleLogger
 from evaluation.sm_noise_logger import NoiseLogger
@@ -39,12 +40,14 @@ def get_evaluation_metrics(arg_map, eval_set, i, sm_args):
     if arg_map["sm"] in gp_models:
         eval_metrics = [
             BlueprintElement[MccTrain](),
+            BlueprintElement[MccKnownTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
             BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
         ]
     elif arg_map["sm"] in ls_learning_gp:
         eval_metrics = [
             BlueprintElement[MccTrain](),
+            BlueprintElement[MccKnownTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
             BlueprintElement[LengthscaleLogger](),
             BlueprintElement[NoiseLogger](),
@@ -53,6 +56,7 @@ def get_evaluation_metrics(arg_map, eval_set, i, sm_args):
     elif arg_map["sm"] in vanishing_model:
         eval_metrics = [
             BlueprintElement[MccTrain](),
+            BlueprintElement[MccKnownTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
             BlueprintElement[LengthscaleLogger](),
             BlueprintElement[VanishingLogger](),
