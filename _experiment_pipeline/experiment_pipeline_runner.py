@@ -29,8 +29,8 @@ from selection_criteria.gp_model.uncertainty_based_query_selection import Uncert
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
-experiment_repeats: int = 3
-learning_steps: int = 40
+experiment_repeats: int = 2
+learning_steps: int = 5
 best_k_to_score: int = 3
 
 ## List of surrogate models to use for evaluation
@@ -86,7 +86,7 @@ if __name__ == '__main__':
         for sm in available_surrogate_models:
             for sc in available_selection_criteria.get(sm):
 
-                output_path = os.path.join("output", sample_mode, sm.__name__, sc.__name__, data_set)
+                output_path = os.path.join("output", sample_mode, data_set, sm.__name__, sc.__name__)
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
 
