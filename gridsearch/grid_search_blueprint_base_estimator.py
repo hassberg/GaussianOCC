@@ -43,6 +43,7 @@ class GridSearchBlueprintBaseEstimator(BaseEstimator, SurrogateReceiver):
             current_bp = DiscreteBaseBlueprint
             current_bp.data_source = BlueprintElement[ParametrizedDiscreteDataSource]({'data_points': X, 'values': y})
         else:
+            print("fit run..")
             current_bp = ContinuousBaseBlueprint
             current_bp.data_source = BlueprintElement[ParametrizedContinuousDataSource](
                 {'data_points': self.blueprint_parameter["gt"][:, :-1], 'values': self.blueprint_parameter["gt"][:, -1]})
