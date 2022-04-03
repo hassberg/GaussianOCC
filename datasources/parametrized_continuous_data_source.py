@@ -10,6 +10,7 @@ from active_learning_ts.data_retrievement.pools.continuous_vector_pool import Co
 class ParametrizedContinuousDataSource(DataSource):
 
     def __init__(self, data_points, values):
+        print("init")
         self.data_points = tf.convert_to_tensor(data_points, dtype=tf.float64)
         self.point_shape = self.data_points.shape
 
@@ -20,6 +21,7 @@ class ParametrizedContinuousDataSource(DataSource):
         self.classifier.fit(self.data_points.numpy(), values)
 
     def query(self, actual_queries: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+        print("query")
         data_points = []
         data_labels = []
         for i in range(len(actual_queries)):
@@ -28,6 +30,7 @@ class ParametrizedContinuousDataSource(DataSource):
         return data_points, data_labels
 
     def possible_queries(self) -> Pool:
+        print("pool")
         ranges = []
         for i in range(self.point_shape[1]):
             ranges.append([(tf.reduce_min(self.data_points[:, i]).numpy(), tf.reduce_max(self.data_points[:, i]).numpy())])

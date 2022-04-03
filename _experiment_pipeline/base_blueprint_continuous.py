@@ -61,5 +61,5 @@ class ContinuousBaseBlueprint(Blueprint):
     selection_criteria: BlueprintElement[SelectionCriteria] = None
 
     evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[MccTrain]()]
-    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[FullDiscreteQuerySampler]()
+    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQuerySampler]()
     knowledge_discovery_task: BlueprintElement[KnowledgeDiscoveryTask] = BlueprintElement[NoKnowledgeDiscoveryTask]()
