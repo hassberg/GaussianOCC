@@ -27,6 +27,7 @@ class CustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
                                                                       GaussianLikelihood(), self.model_parameter)
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
+        print("learn" + str(points) + str(values))
         points = tf.cast(points, tf.float64)
         if self.training_points is None:
             self.training_points = points
@@ -38,6 +39,7 @@ class CustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
         self.gaussian_process_model.train()
         self.gaussian_process_model.fit(self.training_points, tf.reshape(self.training_values, [-1]))
         self.gaussian_process_model.eval()
+        print("fi train")
 
     def uncertainty(self, points: tf.Tensor) -> tf.Tensor:
         if points.dtype is not tf.float64:
@@ -49,10 +51,12 @@ class CustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
         return prediction.stddev.detach()
 
     def query(self, points: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+        print("query")
         if points.dtype is not tf.float64:
             points = tf.cast(points, tf.float64)
 
         prediction = self.gaussian_process_model.likelihood(
             self.gaussian_process_model(torch.as_tensor(points.numpy())))
 
+        print("fi query")
         return points, prediction.mean.detach()

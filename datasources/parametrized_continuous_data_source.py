@@ -30,12 +30,8 @@ class ParametrizedContinuousDataSource(DataSource):
         return data_points, data_labels
 
     def possible_queries(self) -> Pool:
-        print("pool")
         ranges = []
         for i in range(self.point_shape[1]):
             ranges.append([(tf.reduce_min(self.data_points[:, i]).numpy(), tf.reduce_max(self.data_points[:, i]).numpy())])
 
-        print("pool done?")
-        cpool = ContinuousVectorPool(self.point_shape[1], ranges)
-        print("pool done!")
-        return cpool
+        return ContinuousVectorPool(self.point_shape[1], ranges)
