@@ -58,7 +58,9 @@ class GridSearchBlueprintBaseEstimator(BaseEstimator, SurrogateReceiver):
         current_bp.selection_criteria = BlueprintElement[self.blueprint_parameter["sc"]]()
         current_bp.evaluation_metrics = [BlueprintElement[SurrogateModelLiberator]({'base_estimator': self})]
 
+        print("run_exp")
         ExperimentRunner(experiment_blueprints=[current_bp], log=False).run()
+        print("finisch_exp")
 
     def save_surrogate_model(self, new_sm):
         self.surrogate_models.append(new_sm)
