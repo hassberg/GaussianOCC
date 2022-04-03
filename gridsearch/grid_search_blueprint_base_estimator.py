@@ -43,7 +43,6 @@ class GridSearchBlueprintBaseEstimator(BaseEstimator, SurrogateReceiver):
             current_bp = DiscreteBaseBlueprint
             current_bp.data_source = BlueprintElement[ParametrizedDiscreteDataSource]({'data_points': X, 'values': y})
         else:
-            print("fit run..")
             current_bp = ContinuousBaseBlueprint
             current_bp.data_source = BlueprintElement[ParametrizedContinuousDataSource](
                 {'data_points': self.blueprint_parameter["gt"][:, :-1], 'values': self.blueprint_parameter["gt"][:, -1]})
@@ -58,9 +57,7 @@ class GridSearchBlueprintBaseEstimator(BaseEstimator, SurrogateReceiver):
         current_bp.selection_criteria = BlueprintElement[self.blueprint_parameter["sc"]]()
         current_bp.evaluation_metrics = [BlueprintElement[SurrogateModelLiberator]({'base_estimator': self})]
 
-        print("run_exp")
         ExperimentRunner(experiment_blueprints=[current_bp], log=False).run()
-        print("finisch_exp")
 
     def save_surrogate_model(self, new_sm):
         self.surrogate_models.append(new_sm)

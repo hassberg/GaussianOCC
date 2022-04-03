@@ -8,7 +8,6 @@ from active_learning_ts.data_retrievement.interpolation_strategy import Interpol
 from active_learning_ts.data_retrievement.retrievement_strategies.exact_retrievement import ExactRetrievement
 from active_learning_ts.data_retrievement.retrievement_strategy import RetrievementStrategy
 from active_learning_ts.evaluation.evaluation_metric import EvaluationMetric
-from active_learning_ts.evaluation.evaluation_metrics.rounder_counter_evaluator import RoundCounterEvaluator
 from active_learning_ts.experiments.blueprint import Blueprint
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 from active_learning_ts.instance_properties.costs.constant_instance_cost import ConstantInstanceCost
@@ -20,15 +19,13 @@ from active_learning_ts.knowledge_discovery.knowledge_discovery_task import Know
 from active_learning_ts.query_selection.query_optimizer import QueryOptimizer
 from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
 from active_learning_ts.query_selection.query_sampler import QuerySampler
-from active_learning_ts.query_selection.query_samplers.random_query_sampler import RandomContinuousQuerySampler
 from active_learning_ts.query_selection.selection_criteria import SelectionCriteria
 from active_learning_ts.surrogate_model.surrogate_model import SurrogateModel
 from active_learning_ts.training.training_strategies.direct_training_strategy import DirectTrainingStrategy
 from active_learning_ts.training.training_strategy import TrainingStrategy
 
 from evaluation.matthew_correlation_coefficient.mcc_train import MccTrain
-from query_optimizer.maximum_unique_full_query_optimizer import MaximumUniqueFullQueryOptimizer
-from query_sampler.full_discrete_query_sampler import FullDiscreteQuerySampler
+from query_sampler.random_continuous_normalizing_query_sampler import RandomContinuousNormalizingQuerySampler
 
 
 class ContinuousBaseBlueprint(Blueprint):
@@ -54,12 +51,12 @@ class ContinuousBaseBlueprint(Blueprint):
 
     training_strategy: BlueprintElement[TrainingStrategy] = BlueprintElement[DirectTrainingStrategy]()
 
-    surrogate_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQuerySampler]()
+    surrogate_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousNormalizingQuerySampler]()
 
     query_optimizer: BlueprintElement[QueryOptimizer] = BlueprintElement[MaximumQueryOptimizer]({"num_tries": 100})
 
     selection_criteria: BlueprintElement[SelectionCriteria] = None
 
     evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[MccTrain]()]
-    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQuerySampler]()
+    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousNormalizingQuerySampler]()
     knowledge_discovery_task: BlueprintElement[KnowledgeDiscoveryTask] = BlueprintElement[NoKnowledgeDiscoveryTask]()
