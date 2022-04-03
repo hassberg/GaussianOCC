@@ -77,7 +77,11 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
         ground_truth = pd.read_csv(os.path.join(arg_map["data_samples"]["ground_truth"], "ground_truth.csv")).values
         arg_map["gt"] = ground_truth
 
+    if arg_map["sampling_mode"] == "continuous":
+        print("pre continuous search")
     fitting_results = get_best_parameter(arg_map)
+    if arg_map["sampling_mode"] == "continuous":
+        print("post continuous search")
 
     for i in range(best_k):
         for data_sample in arg_map["data_samples"]["samples"]:
