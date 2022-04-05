@@ -21,15 +21,14 @@ from models.constant_prior_gp_model.constant_prior_mean_surrogate_model import C
 from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surrogate_model import CustomModelBasedPriorMeanSurrogateModel
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
+# TODO adjust these parameter for grid creation
 gamma_range_numbers = 10
 lengthscale_numbers = 10
-combined_numbers = 7
+combined_numbers = 3
 learning_steps = 40
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
-    # TODO adjust these parameter for grid creation
-
     if model == SVDDNegSurrogateModel:
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
         gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=gamma_range_numbers)))
