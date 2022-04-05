@@ -24,11 +24,11 @@ from models.vanishing_self_training_prior_knowledge_model_gp_model.vanishing_sel
 
 gp_models = [
     CustomModelBasedPriorMeanSurrogateModel,
+    ConstantPriorMeanSurrogateModel,
 ]
 
 ls_learning_gp = [
     SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
-    ConstantPriorMeanSurrogateModel,
 ]
 
 vanishing_model = [
