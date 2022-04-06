@@ -25,6 +25,9 @@ class CustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
         self.gaussian_process_model = CustomModelBasedGaussianProcess(self.model_parameter["init_points"],
                                                                       initial_data_point, initial_sample,
                                                                       GaussianLikelihood(), self.model_parameter)
+        params = {'covariance_module.lengthscale': self.model_parameter['lengthscale']}
+        self.gaussian_process_model.initialize(**params)
+
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
         points = tf.cast(points, tf.float64)

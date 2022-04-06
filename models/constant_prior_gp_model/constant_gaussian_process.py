@@ -13,7 +13,6 @@ class ConstantGaussianProcess(ExactGP):
         super(ConstantGaussianProcess, self).__init__(train_data, train_values, likelihood)
         self.mean_module = ZeroMean()
         self.covariance_module = RBFKernel()
-        self.covariance_module.lengthscale = params['lengthscale']
         self.eval()
 
     def forward(self, x: tf.Tensor):

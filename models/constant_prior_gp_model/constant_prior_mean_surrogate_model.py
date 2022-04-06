@@ -24,6 +24,9 @@ class ConstantPriorMeanSurrogateModel(SurrogateModel):
         initial_data_point = torch.zeros(1, (len(self.model_parameter["init_points"][0])), dtype=torch.double)
         initial_sample = torch.zeros(1, dtype=torch.double)
         self.gaussian_process_model = ConstantGaussianProcess(initial_data_point, initial_sample, GaussianLikelihood(), self.model_parameter)
+        params = {'covariance_module.lengthscale': self.model_parameter['lengthscale']}
+        self.gaussian_process_model.initialize(**params)
+
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
         points = tf.cast(points, tf.float64)
