@@ -23,9 +23,10 @@ from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 # TODO adjust these parameter for grid creation
 gamma_range_numbers = 10
-lengthscale_numbers = 10
-combined_numbers = 7
-learning_steps = 40
+lengthscale_numbers = 6
+combined_numbers = 4
+learning_steps = 4
+
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
@@ -115,8 +116,8 @@ def generate_pseudo_validation_data(data, k=None, threshold=0.1):
 
 
 def get_best_parameter(arg_map):
-    train_set = pd.read_csv(os.path.join(arg_map["data_samples"]["test"][0], "train.csv")).values
-    test_set = pd.read_csv(os.path.join(arg_map["data_samples"]["test"][0], "test.csv")).values
+    train_set = pd.read_csv(os.path.join(arg_map["data_samples"]["grid"][0], "train.csv")).values
+    test_set = pd.read_csv(os.path.join(arg_map["data_samples"]["grid"][0], "test.csv")).values
 
     pseudo_data = generate_pseudo_validation_data(train_set[:, :-1])
 
