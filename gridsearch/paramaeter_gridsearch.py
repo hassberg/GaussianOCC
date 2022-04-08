@@ -23,8 +23,8 @@ from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 # TODO adjust these parameter for grid creation
 gamma_range_numbers = 10
-lengthscale_numbers = 6
-combined_numbers = 4
+lengthscale_numbers = 10
+combined_numbers = 7
 learning_steps = 40
 
 

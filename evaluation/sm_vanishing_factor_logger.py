@@ -29,7 +29,10 @@ class VanishingLogger(EvaluationMetric):
         self.append_round_scoring()
 
     def get_evaluation(self):
-        return '[' + ",".join(str(x) for x in self.iteration_scoring) + ']'
+        return '[' + ",".join(self.single_log(x) for x in self.iteration_scoring) + ']'
+
+    def single_log(self, X):
+        return '[' + ",".join(str(x) for x in X) + ']'
 
     def append_round_scoring(self):
-        self.iteration_scoring.append(self.surrogate_model.gaussian_process_model.vanish_factor.T.detach().numpy().flatten()[0])
+        self.iteration_scoring.append(self.surrogate_model.gaussian_process_model.vf1.T.detach().numpy().flatten())
