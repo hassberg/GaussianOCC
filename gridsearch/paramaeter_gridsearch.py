@@ -25,7 +25,7 @@ from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 gamma_range_numbers = 10
 lengthscale_numbers = 6
 combined_numbers = 4
-learning_steps = 4
+learning_steps = 40
 
 
 

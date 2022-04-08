@@ -31,6 +31,7 @@ class VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel(SurrogateMode
         self.gaussian_process_model = VanishingSelfTrainingCustomModelBasedGaussianProcess(self.model_parameter["init_points"],
                                                                                            initial_data_point, initial_sample,
                                                                                            GaussianLikelihood(), self.model_parameter)
+        self.gaussian_process_model.init_vanishing_factor(data_retriever)
 
     def learn(self, points: tf.Tensor, values: tf.Tensor):
         points = tf.cast(points, tf.float64)
