@@ -19,6 +19,7 @@ class VanishingSelfTrainingCustomModelBasedGaussianProcess(ExactGP):
                                                                                    likelihood)  # TODO replace with actual value
         self.mean_module = SvddBasedMean(all_data, params)
         self.covariance_module = RBFKernel()
+        self.covariance_module.lengthscale = params['lengthscale']
         self.vanishing_factors = []
 
         self.dims = []

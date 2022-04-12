@@ -29,7 +29,8 @@ class VanishingLogger(EvaluationMetric):
         self.append_round_scoring()
 
     def get_evaluation(self):
-        return '[' + ",".join(self.single_log(x) for x in self.iteration_scoring) + ']'
+        fst_lst = [self.iteration_scoring[i] for i in [1, len(self.iteration_scoring)-1]]
+        return '[' + ",".join(self.single_log(x) for x in fst_lst) + ']'
 
     def single_log(self, X):
         return '[' + ",".join(str(x) for x in X) + ']'

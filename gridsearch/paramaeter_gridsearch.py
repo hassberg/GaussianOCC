@@ -22,11 +22,9 @@ from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surroga
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 # TODO adjust these parameter for grid creation
-gamma_range_numbers = 10
-lengthscale_numbers = 10
-combined_numbers = 7
+gamma_range_numbers = 8
+lengthscale_numbers = 8
 learning_steps = 40
-
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
@@ -49,9 +47,9 @@ def get_parameter_grid(model, data_shape, points, outlier_fraction):
         return parameter
     elif model == CustomModelBasedPriorMeanSurrogateModel:
         dist = distance.pdist(points)
-        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=combined_numbers))
+        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=lengthscale_numbers))
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
-        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=combined_numbers)))
+        gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=gamma_range_numbers)))
         parameter = {
             'kernel': ['rbf'],
             'C': [tax_cost_estimation],
@@ -60,20 +58,26 @@ def get_parameter_grid(model, data_shape, points, outlier_fraction):
         }
         return parameter
     elif model == SelfTrainingCustomModelBasedPriorMeanSurrogateModel:
+        dist = distance.pdist(points)
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
+        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=lengthscale_numbers))
         gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=lengthscale_numbers)))
         parameter = {
             'kernel': ['rbf'],
             'C': [tax_cost_estimation],
+            'lengthscale': lengthscale_range,
             'gamma': gamma_range,
         }
         return parameter
     elif model == VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel:
+        dist = distance.pdist(points)
         tax_cost_estimation = np.divide(1, np.multiply(data_shape[1], outlier_fraction))
+        lengthscale_range = np.exp(np.linspace(start=np.log(np.maximum(dist.min(), 0.0001)), stop=np.log(dist.max()), num=lengthscale_numbers))
         gamma_range = list(map(lambda x: 2 ** x, np.linspace(start=-4, stop=4, num=lengthscale_numbers)))
         parameter = {
             'kernel': ['rbf'],
             'C': [tax_cost_estimation],
+            'lengthscale': lengthscale_range,
             'gamma': gamma_range,
         }
         return parameter
