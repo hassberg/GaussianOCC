@@ -36,10 +36,10 @@ best_k_to_score: int = 3
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [
     CustomModelBasedPriorMeanSurrogateModel,
-    # SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
+    SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
     VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel,
-    # SVDDNegSurrogateModel,
-    # ConstantPriorMeanSurrogateModel,
+    SVDDNegSurrogateModel,
+    ConstantPriorMeanSurrogateModel,
 ]
 
 # Dictionary containing selection criteria for each surrogate model
@@ -95,6 +95,6 @@ if __name__ == '__main__':
     with mp.Pool(processes=N) as p:
         for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
             pass
-    #
+
     # for arg_map in all_experiments:
     #     run_experiment(arg_map)

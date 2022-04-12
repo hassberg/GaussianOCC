@@ -25,7 +25,7 @@ from active_learning_ts.training.training_strategies.direct_training_strategy im
 from active_learning_ts.training.training_strategy import TrainingStrategy
 
 from evaluation.matthew_correlation_coefficient.mcc_train import MccTrain
-from query_sampler.random_continuous_normalizing_query_sampler import RandomContinuousNormalizingQuerySampler
+from query_sampler.random_continuous_query_generator import RandomContinuousQueryGenerator
 
 
 class ContinuousBaseBlueprint(Blueprint):
@@ -51,12 +51,12 @@ class ContinuousBaseBlueprint(Blueprint):
 
     training_strategy: BlueprintElement[TrainingStrategy] = BlueprintElement[DirectTrainingStrategy]()
 
-    surrogate_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousNormalizingQuerySampler]()
+    surrogate_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQueryGenerator]()
 
     query_optimizer: BlueprintElement[QueryOptimizer] = BlueprintElement[MaximumQueryOptimizer]({"num_tries": 100})
 
     selection_criteria: BlueprintElement[SelectionCriteria] = None
 
     evaluation_metrics: Iterable[BlueprintElement[EvaluationMetric]] = [BlueprintElement[MccTrain]()]
-    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousNormalizingQuerySampler]()
+    knowledge_discovery_sampler: BlueprintElement[QuerySampler] = BlueprintElement[RandomContinuousQueryGenerator]()
     knowledge_discovery_task: BlueprintElement[KnowledgeDiscoveryTask] = BlueprintElement[NoKnowledgeDiscoveryTask]()
