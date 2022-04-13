@@ -22,9 +22,9 @@ from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surroga
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 # TODO adjust these parameter for grid creation
-gamma_range_numbers = 8
-lengthscale_numbers = 8
-learning_steps = 40
+gamma_range_numbers = 3
+lengthscale_numbers = 3
+learning_steps = 4
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):
@@ -123,11 +123,13 @@ def get_best_parameter(arg_map):
     train_set = pd.read_csv(os.path.join(arg_map["data_samples"]["grid"][0], "train.csv")).values
     test_set = pd.read_csv(os.path.join(arg_map["data_samples"]["grid"][0], "test.csv")).values
 
-    pseudo_data = generate_pseudo_validation_data(train_set[:, :-1])
+    # pseudo_data = generate_pseudo_validation_data(train_set[:, :-1])
 
-    data = np.concatenate((train_set[:, :-1], test_set[:, :-1], pseudo_data[:, :-1]), axis=0)
-    targets = np.concatenate((train_set[:, -1], test_set[:, -1], pseudo_data[:, -1]), axis=0)
-    indices = np.append(np.full((len(train_set)), -1, dtype=int), np.full((len(test_set) + len(pseudo_data)), 0, dtype=int))
+    # data = np.concatenate((train_set[:, :-1], test_set[:, :-1], pseudo_data[:, :-1]), axis=0)
+    data = np.concatenate((train_set[:, :-1], test_set[:, :-1]), axis=0)
+    # targets = np.concatenate((train_set[:, -1], test_set[:, -1], pseudo_data[:, -1]), axis=0)
+    targets = np.concatenate((train_set[:, -1], test_set[:, -1]), axis=0)
+    indices = np.append(np.full((len(train_set)), -1, dtype=int), np.full((len(test_set)), 0, dtype=int))
     ps = PredefinedSplit(indices)
 
     arg_map["learning_steps"] = learning_steps
