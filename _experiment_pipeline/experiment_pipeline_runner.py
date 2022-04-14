@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
                 all_experiments.append({"sm": sm, "sc": sc, "sampling_mode": sample_mode, "data_samples": sampels, "output_path": output_path})
 
-    if N == 32:
+    if N >= 32:
         with mp.Pool(processes=N) as p:
             for _ in tqdm(p.imap_unordered(run_experiment, all_experiments), total=len(all_experiments)):
                 pass
