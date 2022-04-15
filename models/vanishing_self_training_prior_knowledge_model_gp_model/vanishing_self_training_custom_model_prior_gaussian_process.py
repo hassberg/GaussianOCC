@@ -24,7 +24,7 @@ class VanishingSelfTrainingCustomModelBasedGaussianProcess(ExactGP):
 
         self.dims = []
         self.picks = 5
-        self.vanishes_per_dim = 2  # means .. *2 + 1
+        self.vanishes_per_dim = 3  # means .. *2 + 1
         self.vr = {}
         self.eval()
 

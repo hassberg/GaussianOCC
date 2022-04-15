@@ -22,9 +22,9 @@ from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surroga
 from models.svdd_neg.svdd_neg_surrogate_model import SVDDNegSurrogateModel
 
 # TODO adjust these parameter for grid creation
-gamma_range_numbers = 3
-lengthscale_numbers = 3
-learning_steps = 4
+gamma_range_numbers = 8
+lengthscale_numbers = 8
+learning_steps = 60
 
 
 def get_parameter_grid(model, data_shape, points, outlier_fraction):

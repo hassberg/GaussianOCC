@@ -30,8 +30,8 @@ from selection_criteria.svdd_model.decision_boundary_focused import SvddDecision
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
 experiment_repeats: int = 2
-learning_steps: int = 4
-best_k_to_score: int = 2
+learning_steps: int = 60
+best_k_to_score: int = 3
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [
