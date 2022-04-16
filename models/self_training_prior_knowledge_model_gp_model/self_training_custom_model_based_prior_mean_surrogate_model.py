@@ -43,6 +43,7 @@ class SelfTrainingCustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
         self.gaussian_process_model.train()
         self.gaussian_process_model.likelihood.train()
         self.gaussian_process_model.fit(self.training_points, tf.reshape(self.training_values, [-1]))
+        self.gaussian_process_model.eval()
         self.gaussian_process_model.likelihood.eval()
 
     def uncertainty(self, points: tf.Tensor) -> tf.Tensor:
