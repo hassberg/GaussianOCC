@@ -25,7 +25,10 @@ class CustomModelBasedPriorMeanSurrogateModel(SurrogateModel):
         self.gaussian_process_model = CustomModelBasedGaussianProcess(self.model_parameter["init_points"],
                                                                       initial_data_point, initial_sample,
                                                                       GaussianLikelihood(), self.model_parameter)
-        params = {'covariance_module.lengthscale': self.model_parameter['lengthscale']}
+        params = {
+            'covariance_module.lengthscale': self.model_parameter['lengthscale'],
+            'likelihood.noise': 0.0004
+        }
         self.gaussian_process_model.initialize(**params)
 
 

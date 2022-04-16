@@ -24,7 +24,11 @@ class ConstantPriorMeanSurrogateModel(SurrogateModel):
         initial_data_point = torch.zeros(1, (len(self.model_parameter["init_points"][0])), dtype=torch.double)
         initial_sample = torch.zeros(1, dtype=torch.double)
         self.gaussian_process_model = ConstantGaussianProcess(initial_data_point, initial_sample, GaussianLikelihood(), self.model_parameter)
-        params = {'covariance_module.lengthscale': self.model_parameter['lengthscale']}
+        params = {
+            'covariance_module.lengthscale': self.model_parameter['lengthscale'],
+            'likelihood.noise': 0.0004,
+
+        }
         self.gaussian_process_model.initialize(**params)
 
 
