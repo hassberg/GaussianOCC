@@ -46,8 +46,8 @@ def get_evaluation_metrics(arg_map, eval_set, i, sm_args):
             BlueprintElement[MccTrain](),
             # BlueprintElement[MccKnownTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
-            BlueprintElement[GpUncertainty]({'eval_data': eval_set}),
-            BlueprintElement[GroundTruthLogger]({'eval_data': eval_set}),
+            # BlueprintElement[GpUncertainty]({'eval_data': eval_set}),
+            # BlueprintElement[GroundTruthLogger]({'eval_data': eval_set}),
             BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
         ]
     elif arg_map["sm"] in ls_learning_gp:
