@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 from active_learning_ts.experiments.experiment_runner import ExperimentRunner
+from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
 
 from _experiment_pipeline.base_blueprint_continuous import ContinuousBaseBlueprint
 from _experiment_pipeline.base_blueprint_discrete import DiscreteBaseBlueprint
@@ -95,8 +96,8 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
 
             sm_args = dict(fitting_results[i][1])
             sm_args["sampling_mode"] = arg_map["sampling_mode"]
-            sm_args["init_points"] = train_set[:,:-1]
-            sm_args["ground_truth"] = train_set[:,-1]
+            sm_args["init_points"] = train_set[:, :-1]
+            sm_args["ground_truth"] = train_set[:, -1]
 
             if arg_map["sampling_mode"] == "discrete":
                 current_bp = DiscreteBaseBlueprint
@@ -104,6 +105,7 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
             elif arg_map["sampling_mode"] == "continuous":
                 current_bp = ContinuousBaseBlueprint
                 current_bp.data_source = BlueprintElement[ParametrizedContinuousDataSource]({'data_points': ground_truth[:, :-1], 'values': ground_truth[:, -1]})
+                current_bp.query_optimizer = BlueprintElement[MaximumQueryOptimizer]({"num_tries": arg_map['poolsize']})
             else:
                 raise Exception("Unknown sampling mode: " + arg_map["sampling_mode"])
 
@@ -116,5 +118,5 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
             current_bp.selection_criteria = BlueprintElement[arg_map["sc"]]()
             current_bp.evaluation_metrics = get_evaluation_metrics(arg_map=arg_map, eval_set=eval_set, i=i, sm_args=fitting_results[i][1])
 
-            logfile = os.path.join(arg_map['output_path'], str(i) + "_log-" + os.path.split(data_sample)[1])
+            logfile = os.path.join(arg_map['output_path'], str(i) + "_-" + str(arg_map['poolsize']) + "-log-" + os.path.split(data_sample)[1])
             ExperimentRunner(experiment_blueprints=[current_bp], file=logfile, log=True).run()

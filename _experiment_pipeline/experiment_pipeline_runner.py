@@ -29,16 +29,16 @@ from selection_criteria.gp_model.uncertainty_based_query_selection import Uncert
 from selection_criteria.svdd_model.decision_boundary_focused import SvddDecisionBoundaryFocusedQuerySelection
 from selection_criteria.svdd_model.random_outlier_sample import RandomOutlierSamplingSelectionCriteria
 
-experiment_repeats: int = 2
+experiment_repeats: int = 1
 learning_steps: int = 60
 best_k_to_score: int = 3
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [
-    SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
-    CustomModelBasedPriorMeanSurrogateModel,
+    # SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
+    # CustomModelBasedPriorMeanSurrogateModel,
     # VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel,
-    SVDDNegSurrogateModel,
+    # SVDDNegSurrogateModel,
     ConstantPriorMeanSurrogateModel,
 ]
 
@@ -85,12 +85,13 @@ if __name__ == '__main__':
     for sample_mode, data_set, sampels in [(key, sample, data_samples[key][sample]) for key in data_samples.keys() for sample in data_samples[key].keys()]:
         for sm in available_surrogate_models:
             for sc in available_selection_criteria.get(sm):
+                for pool_size in [5000, 10000, 15000, 30000,40000, 50000,100000]:
 
-                output_path = os.path.join("output", sample_mode, data_set, sm.__name__, sc.__name__)
-                if not os.path.exists(output_path):
-                    os.makedirs(output_path)
+                    output_path = os.path.join("output", sample_mode, data_set, sm.__name__, sc.__name__)
+                    if not os.path.exists(output_path):
+                        os.makedirs(output_path)
 
-                all_experiments.append({"sm": sm, "sc": sc, "sampling_mode": sample_mode, "data_samples": sampels, "output_path": output_path})
+                    all_experiments.append({"sm": sm, "sc": sc, "sampling_mode": sample_mode, "data_samples": sampels, "output_path": output_path, "poolsize":pool_size})
 
     if N >= 32:
         with mp.Pool(processes=N) as p:
