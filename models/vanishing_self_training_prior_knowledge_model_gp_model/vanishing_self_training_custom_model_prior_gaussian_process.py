@@ -82,7 +82,7 @@ class VanishingSelfTrainingCustomModelBasedGaussianProcess(ExactGP):
         vanishing_factors = torch.zeros((len(x), len(self.vf1)))
         for i in range(len(x)):
             y = 0
-            for j in range(len(self.dims)):
+            for j in range(len(self.dims)-1):
                 k = self.get_vf_range_window(j, x[i][self.dims[j]])
                 y = y + len(self.vr) ** j * k
             vanishing_factors[i][j * len(self.vr) + k] = 1

@@ -35,9 +35,9 @@ best_k_to_score: int = 3
 
 ## List of surrogate models to use for evaluation
 available_surrogate_models = [
-    CustomModelBasedPriorMeanSurrogateModel,
     SelfTrainingCustomModelBasedPriorMeanSurrogateModel,
-    VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel,
+    CustomModelBasedPriorMeanSurrogateModel,
+    # VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel,
     SVDDNegSurrogateModel,
     ConstantPriorMeanSurrogateModel,
 ]

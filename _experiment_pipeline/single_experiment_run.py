@@ -8,6 +8,8 @@ from _experiment_pipeline.base_blueprint_continuous import ContinuousBaseBluepri
 from _experiment_pipeline.base_blueprint_discrete import DiscreteBaseBlueprint
 from datasources.parametrized_continuous_data_source import ParametrizedContinuousDataSource
 from datasources.parametrized_discrete_data_source import ParametrizedDiscreteDataSource
+from evaluation.gp_uncertainty_eval import GpUncertainty
+from evaluation.ground_truth_logger import GroundTruthLogger
 from evaluation.matthew_correlation_coefficient.mcc_eval import MccEval
 from evaluation.matthew_correlation_coefficient.mcc_know_train import MccKnownTrain
 from evaluation.matthew_correlation_coefficient.mcc_train import MccTrain
@@ -15,6 +17,7 @@ from evaluation.sm_lengthscale_logger import LengthscaleLogger
 from evaluation.sm_noise_logger import NoiseLogger
 from evaluation.sm_parameter_logger import SmParameterLogger
 from evaluation.sm_vanishing_factor_logger import VanishingLogger
+from evaluation.svdd_uncertainty_eval import SvddUncertainty
 from gridsearch.paramaeter_gridsearch import get_best_parameter
 from models.constant_prior_gp_model.constant_prior_mean_surrogate_model import ConstantPriorMeanSurrogateModel
 from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surrogate_model import CustomModelBasedPriorMeanSurrogateModel
@@ -40,15 +43,19 @@ def get_evaluation_metrics(arg_map, eval_set, i, sm_args):
     if arg_map["sm"] in gp_models:
         eval_metrics = [
             BlueprintElement[MccTrain](),
-            BlueprintElement[MccKnownTrain](),
+            # BlueprintElement[MccKnownTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
+            BlueprintElement[GpUncertainty]({'eval_data': eval_set}),
+            BlueprintElement[GroundTruthLogger]({'eval_data': eval_set}),
             BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
         ]
     elif arg_map["sm"] in ls_learning_gp:
         eval_metrics = [
             BlueprintElement[MccTrain](),
-            BlueprintElement[MccKnownTrain](),
+            # BlueprintElement[MccKnownTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
+            BlueprintElement[GpUncertainty]({'eval_data': eval_set}),
+            BlueprintElement[GroundTruthLogger]({'eval_data': eval_set}),
             BlueprintElement[LengthscaleLogger](),
             BlueprintElement[NoiseLogger](),
             BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
@@ -67,6 +74,8 @@ def get_evaluation_metrics(arg_map, eval_set, i, sm_args):
         eval_metrics = [
             BlueprintElement[MccTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
+            BlueprintElement[SvddUncertainty]({'eval_data': eval_set}),
+            BlueprintElement[GroundTruthLogger]({'eval_data': eval_set}),
             BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
         ]
     return eval_metrics
