@@ -46,8 +46,8 @@ def get_evaluation_metrics(arg_map, eval_set, i, sm_args):
             BlueprintElement[MccTrain](),
             # BlueprintElement[MccKnownTrain](),
             BlueprintElement[MccEval]({'eval_data': eval_set}),
-            # BlueprintElement[GpUncertainty]({'eval_data': eval_set}),
-            # BlueprintElement[GroundTruthLogger]({'eval_data': eval_set}),
+            BlueprintElement[GpUncertainty]({'eval_data': eval_set}),
+            BlueprintElement[GroundTruthLogger]({'eval_data': eval_set}),
             BlueprintElement[SmParameterLogger]({'kth_best': i, 'parameter': sm_args})
         ]
     elif arg_map["sm"] in ls_learning_gp:
@@ -105,7 +105,7 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
             elif arg_map["sampling_mode"] == "continuous":
                 current_bp = ContinuousBaseBlueprint
                 current_bp.data_source = BlueprintElement[ParametrizedContinuousDataSource]({'data_points': ground_truth[:, :-1], 'values': ground_truth[:, -1]})
-                current_bp.query_optimizer = BlueprintElement[MaximumQueryOptimizer]({"num_tries": arg_map['poolsize']})
+                #TODO current_bp.query_optimizer = BlueprintElement[MaximumQueryOptimizer]({"num_tries": arg_map['poolsize']})
             else:
                 raise Exception("Unknown sampling mode: " + arg_map["sampling_mode"])
 
@@ -118,5 +118,5 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
             current_bp.selection_criteria = BlueprintElement[arg_map["sc"]]()
             current_bp.evaluation_metrics = get_evaluation_metrics(arg_map=arg_map, eval_set=eval_set, i=i, sm_args=fitting_results[i][1])
 
-            logfile = os.path.join(arg_map['output_path'], str(i) + "_-" + str(arg_map['poolsize']) + "-log-" + os.path.split(data_sample)[1])
+            logfile = os.path.join(arg_map['output_path'], str(i) + "-log-" + os.path.split(data_sample)[1])
             ExperimentRunner(experiment_blueprints=[current_bp], file=logfile, log=True).run()
