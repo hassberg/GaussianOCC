@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator
 from sklearn.metrics import matthews_corrcoef, f1_score
 
 from gridsearch.surrogate_receiver import SurrogateReceiver
+from query_optimizer.maximum_continuous_query_optimizer import MaximumContinuousQueryOptimizer
 
 
 class GridSearchBlueprintBaseEstimator(BaseEstimator, SurrogateReceiver):
@@ -46,6 +47,7 @@ class GridSearchBlueprintBaseEstimator(BaseEstimator, SurrogateReceiver):
             current_bp = ContinuousBaseBlueprint
             current_bp.data_source = BlueprintElement[ParametrizedContinuousDataSource](
                 {'data_points': self.blueprint_parameter["gt"][:, :-1], 'values': self.blueprint_parameter["gt"][:, -1]})
+            current_bp.query_optimizer = BlueprintElement[MaximumContinuousQueryOptimizer]({"num_tries": 12000})
 
         current_bp.__name__ = self.blueprint_parameter["sm"].__name__ + "BP"
 

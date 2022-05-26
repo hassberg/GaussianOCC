@@ -3,10 +3,10 @@ import os
 import pandas as pd
 from active_learning_ts.experiments.blueprint_element import BlueprintElement
 from active_learning_ts.experiments.experiment_runner import ExperimentRunner
-from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
 
 from _experiment_pipeline.base_blueprint_continuous import ContinuousBaseBlueprint
 from _experiment_pipeline.base_blueprint_discrete import DiscreteBaseBlueprint
+from active_learning_ts.query_selection.query_optimizers.maximum_query_optimizer import MaximumQueryOptimizer
 from datasources.parametrized_continuous_data_source import ParametrizedContinuousDataSource
 from datasources.parametrized_discrete_data_source import ParametrizedDiscreteDataSource
 from evaluation.gp_uncertainty_eval import GpUncertainty
@@ -25,6 +25,7 @@ from models.prior_knowledge_model_gp_model.custom_model_based_prior_mean_surroga
 from models.self_training_prior_knowledge_model_gp_model.self_training_custom_model_based_prior_mean_surrogate_model import SelfTrainingCustomModelBasedPriorMeanSurrogateModel
 from models.vanishing_self_training_prior_knowledge_model_gp_model.vanishing_self_training_custom_model_based_prior_mean_surrogate_model import \
     VanishingSelfTrainingCustomModelBasedPriorMeanSurrogateModel
+from query_optimizer.maximum_continuous_query_optimizer import MaximumContinuousQueryOptimizer
 
 gp_models = [
     CustomModelBasedPriorMeanSurrogateModel,
@@ -105,7 +106,7 @@ def run_single_experiment(arg_map, best_k, repeats, learning_steps):
             elif arg_map["sampling_mode"] == "continuous":
                 current_bp = ContinuousBaseBlueprint
                 current_bp.data_source = BlueprintElement[ParametrizedContinuousDataSource]({'data_points': ground_truth[:, :-1], 'values': ground_truth[:, -1]})
-                #TODO current_bp.query_optimizer = BlueprintElement[MaximumQueryOptimizer]({"num_tries": arg_map['poolsize']})
+                current_bp.query_optimizer = BlueprintElement[MaximumContinuousQueryOptimizer]({"num_tries": 12000})#TODO set
             else:
                 raise Exception("Unknown sampling mode: " + arg_map["sampling_mode"])
 

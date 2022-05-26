@@ -33,5 +33,5 @@ class MccEval(EvaluationMetric):
 
     def append_round_scoring(self):
         prediction = self.surrogate_model.query(self.all_queries)
-        class_prediction = tf.map_fn((lambda t: 1 if (t >= 0) else -1), prediction[1])
+        class_prediction = [1 if i >= 0 else -1 for i in prediction[1]]
         self.iteration_scoring.append(matthews_corrcoef(self.ground_truth, class_prediction))
